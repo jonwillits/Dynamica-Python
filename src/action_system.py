@@ -181,7 +181,7 @@ class ActionSystem:
         self.animal.position = [new_x, new_y]
 
         self.animal.the_world.map[(x, y)].animal_list.pop()
-        self.animal.the_world.map[(new_x, new_y)].animal_list.append(self)
+        self.animal.the_world.map[(new_x, new_y)].animal_list.append(self.animal)
 
     ############################################################################################################
     def turn(self):

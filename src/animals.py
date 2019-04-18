@@ -66,9 +66,6 @@ class Animal:
                                                 self.the_world.map[i, j].animal_list[0].position,
                                                 self.the_world.map[i, j].animal_list[0].orientation))
 
-        for animal in self.the_world.animal_list:
-            print()
-
         self.nervous_system.get_sensory_representation()
         self.nervous_system.neural_feedforward()
         self.action_system.get_legal_action_probabilities()
