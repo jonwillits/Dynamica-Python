@@ -19,8 +19,8 @@ class World:
         self.world_size = 0
         self.land_size = 0
         self.water_size = 0
-        self.num_rows = config.World.rows
-        self.num_columns = config.World.columns
+        self.num_rows = config.World.num_rows
+        self.num_columns = config.World.num_columns
         self.map = {}
 
         self.animal_list = []
@@ -146,8 +146,8 @@ class World:
         if position is None:
             placed = False
             while not placed:
-                column = random.randint(0, config.World.columns - 1)
-                row = random.randint(0, config.World.rows - 1)
+                column = random.randint(0, config.World.num_columns - 1)
+                row = random.randint(0, config.World.num_rows - 1)
                 current_tile = self.map[(column, row)]
                 terrain_type = current_tile.terrain_type
                 if animal.allowed_terrain_dict[terrain_type]:

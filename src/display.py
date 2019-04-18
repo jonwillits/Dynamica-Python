@@ -14,8 +14,8 @@ class Display:
         self.image_dict = None
         self.running = False
 
-        self.rows = config.World.rows
-        self.columns = config.World.columns
+        self.num_rows = config.World.num_rows
+        self.num_columns = config.World.num_columns
         self.grid_size = config.World.grid_size
         self.world_height = None
         self.world_width = None
@@ -63,8 +63,8 @@ class Display:
 
     ############################################################################################################
     def configure_sizes(self):
-        self.world_height = self.rows * self.grid_size
-        self.world_width = self.columns * self.grid_size
+        self.world_height = self.num_rows * self.grid_size
+        self.world_width = self.num_columns * self.grid_size
 
     ############################################################################################################
     def create_main_window(self):
@@ -182,8 +182,8 @@ class Display:
 
     ############################################################################################################
     def draw_world(self):
-        for i in range(self.the_world.rows):
-            for j in range(self.the_world.columns):
+        for i in range(self.the_world.num_rows):
+            for j in range(self.the_world.num_columns):
                 current_tile = self.the_world.map[(j, i)]
                 x, y = self.get_screen_coordinates(j, i)
                 self.main_canvas.create_image(x, y, anchor=tk.NW, image=self.image_dict[current_tile.image])

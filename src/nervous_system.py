@@ -160,7 +160,7 @@ class NervousSystem:
         x = tile_location[0]
         y = tile_location[1]
 
-        if (x >= 0) and (y >= 0) and (x <= config.World.columns - 1) and (y <= config.World.rows - 1):
+        if (x >= 0) and (y >= 0) and (x <= config.World.num_columns - 1) and (y <= config.World.num_rows - 1):
             tile_representation_list.append(self.animal.the_world.map[x, y].appearance)
 
             if len(self.animal.the_world.map[x, y].animal_list):
