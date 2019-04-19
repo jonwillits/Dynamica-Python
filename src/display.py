@@ -236,8 +236,8 @@ class Display:
     ############################################################################################################
     def show_tile_click_info(self, x, y):
         grid_x, grid_y = self.get_grid_coordinates(x, y)
-        if 0 <= grid_x <= self.columns-1:
-            if 0 <= grid_y <= self.rows - 1:
+        if 0 <= grid_x <= self.num_columns-1:
+            if 0 <= grid_y <= self.num_rows - 1:
                 if self.info_window is not None:
                     self.info_window.destroy()
                 self.info_window = tk.Toplevel(self.root)
@@ -366,7 +366,7 @@ class SpeciesInfoWindow:
         summary_title1.place(x=20, y=160)
         summary_title2.place(x=240, y=160)
 
-        summary_string = "  {:0.3f}      {:0.3f}".format(s0['Learning Rate'], st['Learning Rate'])
+        summary_string = "  {:0.3f}      {:0.3f}".format(s0['Prediction Learning Rate'], st['Prediction Learning Rate'])
         summary_title1 = tk.Label(summary_frame, text="Average Learning Rate:", font="Verdana 12 bold", anchor=tk.W)
         summary_title2 = tk.Label(summary_frame, text=summary_string, font="Verdana 12", anchor=tk.W)
         summary_title1.place(x=20, y=180)
@@ -445,22 +445,10 @@ class SpeciesInfoWindow:
         summary_title2.place(x=240, y=410)
 
         summary_string = "  {:0.3f}      {:0.3f}".format(s0['Action Outputs'][5], st['Action Outputs'][5])
-        summary_title1 = tk.Label(summary_frame, text="Average Turn Mod Activation:", font="Verdana 12 bold", anchor=tk.W)
+        summary_title1 = tk.Label(summary_frame, text="Average Move Activation:", font="Verdana 12 bold", anchor=tk.W)
         summary_title2 = tk.Label(summary_frame, text=summary_string, font="Verdana 12", anchor=tk.W)
         summary_title1.place(x=20, y=430)
         summary_title2.place(x=240, y=430)
-
-        summary_string = "  {:0.3f}      {:0.3f}".format(s0['Action Outputs'][6], st['Action Outputs'][6])
-        summary_title1 = tk.Label(summary_frame, text="Average Move Activation:", font="Verdana 12 bold", anchor=tk.W)
-        summary_title2 = tk.Label(summary_frame, text=summary_string, font="Verdana 12", anchor=tk.W)
-        summary_title1.place(x=20, y=450)
-        summary_title2.place(x=240, y=450)
-
-        summary_string = "  {:0.3f}      {:0.3f}".format(s0['Action Outputs'][7], st['Action Outputs'][7])
-        summary_title1 = tk.Label(summary_frame, text="Average Move Mod Activation:", font="Verdana 12 bold", anchor=tk.W)
-        summary_title2 = tk.Label(summary_frame, text=summary_string, font="Verdana 12", anchor=tk.W)
-        summary_title1.place(x=20, y=470)
-        summary_title2.place(x=240, y=470)
 
 
 ############################################################################################################

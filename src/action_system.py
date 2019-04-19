@@ -203,9 +203,9 @@ class ActionSystem:
     def attack(self):
         forward_tile = self.animal.nervous_system.view_list[2]
         patient = self.animal.the_world.map[forward_tile].animal_list[0]
-        patient.drive_system.drive_value_array[patient.drive_index_dict['Health']] -= \
+        patient.drive_system.drive_value_array[patient.drive_system.drive_index_dict['Health']] -= \
             self.animal.attack_strength * self.animal.current_size
-        self.animal.drive_system.drive_value_array[patient.drive_index_dict['Health']] -= \
+        self.animal.drive_system.drive_value_array[patient.drive_system.drive_index_dict['Health']] -= \
             patient.attack_strength * patient.current_size
 
     ############################################################################################################

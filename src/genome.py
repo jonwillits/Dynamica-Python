@@ -38,7 +38,7 @@ class Genome:
             for j in range(len(mother_genome.gene_list[i])):
                 mother_nucleotide = mother_genome.gene_list[i][j]
                 father_nucleotide = father_genome.gene_list[i][j]
-                child_nucleotide = random.choice(mother_nucleotide, father_nucleotide)
+                child_nucleotide = random.choice([mother_nucleotide, father_nucleotide])
                 if random.uniform(0, 1) < config.Animal.mutation_rate:
                     if child_nucleotide == 0:
                         child_nucleotide = 1

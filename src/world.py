@@ -10,7 +10,6 @@ import numpy as np
 ############################################################################################################
 ############################################################################################################
 class World:
-
     def __init__(self):
 
         self.current_turn = 0
@@ -75,6 +74,7 @@ class World:
                 self.world_size += 1
                 new_tile = self.choose_tile_type(i, j)
                 self.map[(j, i)] = new_tile
+
         self.land_size = self.world_size - self.water_size
 
     ############################################################################################################
@@ -247,7 +247,14 @@ class World:
 
     ############################################################################################################
     def next_turn(self):
+
         if len(self.animal_list):
+            for world_object in self.object_list:
+                world_object.next_turn()
+
+            for plant in self.plant_list:
+                plant.next_turn()
+
             for animal in self.animal_list:
                 # normal turn actions
                 animal.take_turn()
@@ -255,11 +262,14 @@ class World:
                 # deal with pregnancy related matters
                 if animal.pregnant:
                     if animal.pregnant == 1:
+
                         if animal.species == 'Zebra':
-                            animal.fetus = animals.Zebra(self, animal.genome, animal.father_genome)
+                            animal.fetus = animals.Zebra(self, animal.genome, animal.baby_daddy_genome)
                         elif animal.species == 'Lion':
-                            animal.fetus = animals.Lion(self, animal.genome, animal.father_genome)
+                            animal.fetus = animals.Lion(self, animal.genome, animal.baby_daddy_genome)
+
                     if animal.pregnant >= config.Animal.gestation_rate:
+
                         x = animal.position[0]
                         y = animal.position[1]
 
@@ -276,7 +286,7 @@ class World:
                     else:
                         animal.pregnant += 1
 
-                # deal with dynamica whose health is 0
+                # deal with animal whose health is 0
                 if animal.drive_system.drive_value_array[animal.drive_system.drive_index_dict['Health']] <= 0:
                     self.kill_animal(animal)
 
@@ -290,68 +300,56 @@ class World:
 
         self.current_turn += 1
 
-        print("\nturn {}".format(self.current_turn))
-        for i in range(self.num_rows):
-            for j in range(self.num_columns):
-                print("[{} {}]  ".format(j, i), end='')
-            print()
-        for animal in self.animal_list:
-            print(animal.species, animal.id_number, animal.position, self.map[tuple(animal.position)].animal_list)
-
     ############################################################################################################
     def print_summary(self):
         output_header = "{:<5s} {:<14s}".format("Turn", "ID")
         output_header += "{:<9s} {:<7s} {:<5s}".format("Sex", "Age", "Size")
-        output_header += " {:>3s},{:<3s} {:>4s} |".format("X", "Y", "Dir")
-        for i in range(self.animal_list[0].drive_system.num_drives):
-            output_header += "  {:<7s}".format(self.animal_list[0].drive_system.drive_list[i])
-        output_header += " | "
-        for i in range(self.animal_list[0].action_system.num_actions):
-            if len(self.animal_list[0].action_system.action_list[i]) > 6:
-                output_header += "{:<6s} ".format(self.animal_list[0].action_system.action_list[i][:6])
-            else:
-                output_header += "{:<6s} ".format(self.animal_list[0].action_system.action_list[i])
+        output_header += " {:>3s},{:<3s} {:>4s} | ".format("X", "Y", "Dir")
+        output_header += " {:<7s}  {:<7s}  {:<7s} | ".format("Health", "Energy", "Arousal")
+        output_header += "{:<6s} {:<6s} {:<6s} {:<6s} {:<6s} {:<6s}| ".format("Rest", "Attack", "Eat", "Procreate", "Turn", "Move")
         output_header += "{:>9s}".format("Choice")
-        output_header += " | {:>6s} {:>6s} {:>6s} {:>6s} {:>9s}".format("SpCost",
-                                                                        "DpCost", "ApCost", "PpCost", "DrCost")
+        output_header += " | {:>6s} {:>6s} {:>6s} {:>6s} {:>9s}".format("SpCost", "DpCost", "ApCost", "PpCost", "DrCost")
         print(output_header)
 
-        for animal in self.animal_list:
-            output_string = "{:<5s} {:<14s}".format(str(self.current_turn), animal.species+"-"+str(animal.id_number))
+        if len(self.animal_list) == 0:
+            print("All Animals are Dead!")
+        else:
+            for animal in self.animal_list:
+                output_string = "{:<5s} {:<14s}".format(str(self.current_turn), animal.species+"-"+str(animal.id_number))
 
-            sex = str(animal.phenotype.trait_value_dict['Sex'])
-            if animal.pregnant:
-                sex = sex + "+1"
-            output_string += "{:<9s} {:<7s} {:<5s}".format(sex, str(animal.age),
-                                                           str('{:<1.3f}'.format(animal.current_size)))
-            output_string += " {:>3s},{:<3s} {:>4s} |".format(str(animal.position[0]), str(animal.position[1]),
-                                                              str(animal.orientation))
-            for i in range(animal.drive_system.num_drives):
-                trimmed_drive = "{:<5.2f}".format(animal.drive_system.drive_value_array[i])
-                output_string += "  {:>7s}".format(str(trimmed_drive))
-            output_string += " | "
+                sex = str(animal.phenotype.trait_value_dict['Sex'])
+                if animal.pregnant:
+                    sex = sex + "+1"
+                output_string += "{:<9s} {:<7s} {:<5s}".format(sex, str(animal.age),
+                                                               str('{:<1.3f}'.format(animal.current_size)))
+                output_string += " {:>3s},{:<3s} {:>4s} |".format(str(animal.position[0]), str(animal.position[1]),
+                                                                  str(animal.orientation))
+                for i in range(animal.drive_system.num_drives):
+                    trimmed_drive = "{:<5.2f}".format(animal.drive_system.drive_value_array[i])
+                    output_string += "  {:>7s}".format(str(trimmed_drive))
+                output_string += " | "
 
-            for i in range(animal.action_system.num_actions):
-                trimmed_action = "{:<3.2f} ".format(animal.action_system.legal_action_prob_distribution[i])
-                output_string += "{:<6s} ".format(str(trimmed_action))
-            output_string += "{:>9s}".format(animal.action_system.action_choice)
-            output_string += " | "
-            spv = animal.nervous_system.neural_network_prediction_cost[animal.nervous_system.s_indexes[0]:animal.nervous_system.s_indexes[1]]
-            dpv = animal.nervous_system.neural_network_prediction_cost[animal.nervous_system.d_indexes[0]:animal.nervous_system.d_indexes[1]]
-            apv = animal.nervous_system.neural_network_prediction_cost[animal.nervous_system.a_indexes[0]:animal.nervous_system.a_indexes[1]]
-            aapv = animal.nervous_system.neural_network_prediction_cost[animal.nervous_system.aa_indexes[0]:animal.nervous_system.aa_indexes[1]]
+                for i in range(animal.action_system.num_actions):
+                    trimmed_action = "{:<3.2f} ".format(animal.action_system.legal_action_prob_distribution[i])
+                    output_string += "{:<6s} ".format(str(trimmed_action))
+                output_string += "{:>9s}".format(animal.action_system.action_choice)
+                output_string += " | "
+                spv = animal.nervous_system.neural_network_prediction_cost[animal.nervous_system.s_indexes[0]:animal.nervous_system.s_indexes[1]]
+                dpv = animal.nervous_system.neural_network_prediction_cost[animal.nervous_system.d_indexes[0]:animal.nervous_system.d_indexes[1]]
+                apv = animal.nervous_system.neural_network_prediction_cost[animal.nervous_system.a_indexes[0]:animal.nervous_system.a_indexes[1]]
+                aapv = animal.nervous_system.neural_network_prediction_cost[animal.nervous_system.aa_indexes[0]:animal.nervous_system.aa_indexes[1]]
 
-            sp_error = np.absolute(spv).sum()
-            dp_error = np.absolute(dpv).sum()
-            ap_error = np.absolute(apv).sum()
-            aap_error = np.absolute(aapv).sum()
+                sp_error = np.absolute(spv).sum()
+                dp_error = np.absolute(dpv).sum()
+                ap_error = np.absolute(apv).sum()
+                aap_error = np.absolute(aapv).sum()
 
-            output_string += '{:>6s} '.format('{:<3.2f}'.format(sp_error/animal.nervous_system.s_size))
-            output_string += '{:>6s} '.format('{:<3.2f}'.format(dp_error/animal.nervous_system.d_size))
-            output_string += '{:>6s} '.format('{:<3.2f}'.format(ap_error/animal.nervous_system.a_size))
-            output_string += '{:>6s} '.format('{:<3.2f}'.format(aap_error/animal.nervous_system.aa_size))
+                output_string += '{:>6s} '.format('{:<3.2f}'.format(sp_error/animal.nervous_system.s_size))
+                output_string += '{:>6s} '.format('{:<3.2f}'.format(dp_error/animal.nervous_system.d_size))
+                output_string += '{:>6s} '.format('{:<3.2f}'.format(ap_error/animal.nervous_system.a_size))
+                output_string += '{:>6s} '.format('{:<3.2f}'.format(aap_error/animal.nervous_system.aa_size))
 
-            print(output_string)
+                print(output_string)
 
     ############################################################################################################
     def write_summary(self):

@@ -58,7 +58,6 @@ class Animal:
         current_animal_list = []
         for i in range(self.the_world.num_columns):
             for j in range(self.the_world.num_rows):
-                print("[{} {}]  ".format(i, j))
                 if len(self.the_world.map[i, j].animal_list):
                     current_animal_list.append((i, j,
                                                 self.the_world.map[i, j].animal_list[0].species,
