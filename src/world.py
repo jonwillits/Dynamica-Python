@@ -343,15 +343,15 @@ class World:
                 apv = animal.nervous_system.neural_network_prediction_cost[animal.nervous_system.a_indexes[0]:animal.nervous_system.a_indexes[1]]
                 aapv = animal.nervous_system.neural_network_prediction_cost[animal.nervous_system.aa_indexes[0]:animal.nervous_system.aa_indexes[1]]
 
-                sp_error = np.absolute(spv).sum()
-                dp_error = np.absolute(dpv).sum()
-                ap_error = np.absolute(apv).sum()
-                aap_error = np.absolute(aapv).sum()
+                sp_error = np.absolute(spv).sum() / animal.nervous_system.s_size
+                dp_error = np.absolute(dpv).sum() / animal.nervous_system.d_size
+                ap_error = np.absolute(apv).sum() / animal.nervous_system.a_size
+                aap_error = np.absolute(aapv).sum() / animal.nervous_system.aa_size
 
-                output_string += '{:>6s} '.format('{:<3.2f}'.format(sp_error/animal.nervous_system.s_size))
-                output_string += '{:>6s} '.format('{:<3.2f}'.format(dp_error/animal.nervous_system.d_size))
-                output_string += '{:>6s} '.format('{:<3.2f}'.format(ap_error/animal.nervous_system.a_size))
-                output_string += '{:>6s} '.format('{:<3.2f}'.format(aap_error/animal.nervous_system.aa_size))
+                output_string += '{:>6s} '.format('{:<3.2f}'.format(sp_error))
+                output_string += '{:>6s} '.format('{:<3.2f}'.format(dp_error))
+                output_string += '{:>6s} '.format('{:<3.2f}'.format(ap_error))
+                output_string += '{:>6s} '.format('{:<3.2f}'.format(aap_error))
 
                 print(output_string)
 

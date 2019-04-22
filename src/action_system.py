@@ -66,8 +66,11 @@ class ActionSystem:
         self.take_action()
 
     ############################################################################################################
-    def get_legal_action_probabilities(self):
-        a_act = self.animal.nervous_system.action_outputs + .01
+    def get_legal_action_probabilities(self, action_outputs=None):
+        if action_outputs is None:
+            a_act = self.animal.nervous_system.action_outputs + .01
+        else:
+            a_act = action_outputs + .01
 
         self.legal_action_array = self.get_legal_action_array()
         self.gated_action_activations = a_act * self.legal_action_array
@@ -208,7 +211,6 @@ class ActionSystem:
         local_plant_list = self.animal.the_world.map[(self.animal.nervous_system.view_list[0])].plant_list
         local_object_list = self.animal.the_world.map[(self.animal.nervous_system.view_list[0])].object_list
         eat_quantity = 0
-        print("eat", local_plant_list)
 
         if "Meat" in self.animal.diet_dict:
             if len(local_object_list):

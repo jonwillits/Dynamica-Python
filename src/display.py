@@ -571,16 +571,17 @@ class GridInfoWindow:
             animal_text_label = tk.Label(animal_frame, text=label_string, font="Courier 11", anchor=tk.W)
             animal_text_label.place(x=30, y=160)
 
-            animal.nervous_system.get_sensory_representation()
-            animal.nervous_system.neural_feedforward()
-            animal.action_system.get_legal_action_probabilities()
+            neural_input_state, neural_hidden_state, neural_output_state = animal.nervous_system.neural_feedforward()
+
+            action_outputs = neural_output_state[animal.nervous_system.a_indexes[0]:animal.nervous_system.a_indexes[1] + 1]
+            animal.action_system.get_legal_action_probabilities(action_outputs)
 
             label_string = " Act      Prob"
             animal_text_label = tk.Label(animal_frame, text=label_string, font="Courier 11 bold", anchor=tk.W)
             animal_text_label.place(x=125, y=256)
             for j in range(animal.action_system.num_actions):
                 label_string = "{:12s} {:6.3f}   {:6.3f}".format(animal.action_system.action_list[j]+':',
-                                                                 animal.nervous_system.action_outputs[j],
+                                                                 action_outputs[j],
                                                                  animal.action_system.legal_action_prob_distribution[j])
                 animal_text_label = tk.Label(animal_frame, text=label_string, font="Courier 11", anchor=tk.W)
                 animal_text_label.place(x=30, y=271+j*16)
