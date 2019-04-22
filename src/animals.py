@@ -54,23 +54,10 @@ class Animal:
 
     ############################################################################################################
     def take_turn(self):
-
-        current_animal_list = []
-        for i in range(self.the_world.num_columns):
-            for j in range(self.the_world.num_rows):
-                if len(self.the_world.map[i, j].animal_list):
-                    current_animal_list.append((i, j,
-                                                self.the_world.map[i, j].animal_list[0].species,
-                                                self.the_world.map[i, j].animal_list[0].id_number,
-                                                self.the_world.map[i, j].animal_list[0].position,
-                                                self.the_world.map[i, j].animal_list[0].orientation))
-
-        self.nervous_system.get_sensory_representation()
-        self.nervous_system.neural_feedforward()
-        self.action_system.get_legal_action_probabilities()
-        self.action_system.choose_action()
-        self.action_system.take_action()
+        self.nervous_system.stored_neural_feedforward()
+        self.action_system.action_turn()
         self.drive_system.update_drives(self.action_system.action_choice)
+        self.nervous_system.update_sensory_state()
         self.nervous_system.update_neural_weights()
         self.grow_older()
         self.update_appearance()

@@ -19,7 +19,10 @@ class Phenotype:
 
     ############################################################################################################
     def __repr__(self):
-        return "Phenotype: {} Traits\n".format(self.num_traits)
+        output_string =  "Phenotype: {} Traits\n".format(self.num_traits)
+        for trait in self.trait_value_dict:
+            output_string += "    {:16s}: {:0.3f}\n".format(trait, self.trait_value_dict[trait])
+        return output_string
 
     ############################################################################################################
     def init_traits(self):
@@ -56,12 +59,6 @@ class Phenotype:
 
             elif self.trait_gene_size_dict[trait][1] == 'vector':
                 self.trait_value_dict[trait] = gene
-
-    ############################################################################################################
-    def print_phenotype(self):
-        print(self, end="")
-        for trait in self.trait_value_dict:
-            print("     ", trait, self.trait_value_dict[trait])
 
     # ############################################################################################################
     # def update_appearance(self, appearance=None):

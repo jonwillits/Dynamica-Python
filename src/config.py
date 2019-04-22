@@ -8,8 +8,8 @@ class GlobalOptions:
 
 ############################################################################################################
 class World:
-    num_rows = 24  # rows x grid size-1 must be < window_height
-    num_columns = 33  # columns x grid size-1 must be < window_width
+    num_rows = 5  # rows x grid size-1 must be < window_height
+    num_columns = 10  # columns x grid size-1 must be < window_width
     grid_size = 32  # the width and height of each grid square (in pixels)
     appearance_size = 20  # this is the size of the appearance vector generated for each thing
 
@@ -17,7 +17,7 @@ class World:
 ############################################################################################################
 class Terrain:
     num_types = 3  # all edge tiles are made lakes, all interior tiles are made desert
-    plains_prob = 1.0  # then each grid tile has this chance of being made into plains
+    plains_prob = .5  # then each grid tile has this chance of being made into plains
     lake_prob = .0  # then each grid tile has this chance of being made into lake
     appearance_variance = 0.05  # the probability each feature of a terrain tile's appearance varies from its prototype
 
@@ -74,20 +74,14 @@ class Animal:
                             'Weight Init Stdev':        (8, 'inv_binary'),
                             'Prediction Learning Rate': (8, 'inv_binary'),
                             'Health Value Direction':   (1, 'direction'),
-                            'Health+ Learning Rate':    (8, 'inv_binary'),
-                            'Health- Learning Rate':    (8, 'inv_binary'),
-                            'HealthD+ Learning Rate':   (8, 'inv_binary'),
-                            'HealthD- Learning Rate':   (8, 'inv_binary'),
+                            'Health Learning Rate':     (8, 'inv_binary'),
+                            'HealthD Learning Rate':    (8, 'inv_binary'),
                             'Energy Value Direction':   (1, 'direction'),
-                            'Energy+ Learning Rate':    (8, 'inv_binary'),
-                            'Energy- Learning Rate':    (8, 'inv_binary'),
-                            'EnergyD+ Learning Rate':   (8, 'inv_binary'),
-                            'EnergyD- Learning Rate':   (8, 'inv_binary'),
+                            'Energy Learning Rate':     (8, 'inv_binary'),
+                            'EnergyD Learning Rate':    (8, 'inv_binary'),
                             'Arousal Value Direction':  (1, 'direction'),
-                            'Arousal+ Learning Rate':   (8, 'inv_binary'),
-                            'Arousal- Learning Rate':   (8, 'inv_binary'),
-                            'ArousalD+ Learning Rate':  (8, 'inv_binary'),
-                            'ArousalD- Learning Rate':  (8, 'inv_binary'),
+                            'Arousal Learning Rate':    (8, 'inv_binary'),
+                            'ArousalD Learning Rate':   (8, 'inv_binary'),
                             'Rest Bias':                (4, 'sum'),
                             'Attack Bias':              (4, 'sum'),
                             'Eat Bias':                 (4, 'sum'),
@@ -106,5 +100,5 @@ class Lion:
 
 ############################################################################################################
 class Zebra:
-    start_number = 20
+    start_number = 1
     diet_dict = {'Meat': False, 'Plants': True}

@@ -141,6 +141,8 @@ class World:
 
                 self.place_animal(self.animal_list[i])
 
+                self.animal_list[i].nervous_system.update_sensory_state()
+
     ############################################################################################################
     def place_animal(self, animal, position=None):
         if position is None:
@@ -203,13 +205,16 @@ class World:
         hidden_sum = 0.0
         learning_rate_sum = 0.0
         drive_direction_sums = np.zeros([3], float)
-        drive_reinforcement_sums = np.zeros([4, 3], float)
+        drive_reinforcement_sums = np.zeros([2, 3], float)
         action_output_sums = np.zeros([6], float)
 
         for animal in self.animal_list:
             if animal.species == species:
-                animal.nervous_system.get_sensory_representation()
-                animal.nervous_system.neural_feedforward()
+                input_state, hidden_state, output_state = animal.nervous_system.neural_feedforward()
+                sensory_outputs = output_state[animal.nervous_system.s_indexes[0]:animal.nervous_system.s_indexes[1] + 1]
+                drive_outputs = output_state[animal.nervous_system.d_indexes[0]:animal.nervous_system.d_indexes[1] + 1]
+                action_outputs = output_state[animal.nervous_system.a_indexes[0]:animal.nervous_system.a_indexes[1] + 1]
+                action_argument_outputs = output_state[animal.nervous_system.aa_indexes[0]:animal.nervous_system.aa_indexes[1] + 1]
 
                 if animal.phenotype.trait_value_dict['Sex'] == 1:
                     sex_sum += 1
@@ -220,8 +225,7 @@ class World:
 
                 drive_direction_sums += animal.nervous_system.drive_direction_array
                 drive_reinforcement_sums += animal.nervous_system.drive_reinforcement_rate_matrix
-
-                action_output_sums += animal.nervous_system.action_outputs
+                action_output_sums += action_outputs
 
         if animal_summary_dict['N'] > 0:
             animal_summary_dict['Sex'] = sex_sum / animal_summary_dict['N']
@@ -309,7 +313,7 @@ class World:
         output_header += "{:<6s} {:<6s} {:<6s} {:<6s} {:<6s} {:<6s}| ".format("Rest", "Attack", "Eat", "Procreate", "Turn", "Move")
         output_header += "{:>9s}".format("Choice")
         output_header += " | {:>6s} {:>6s} {:>6s} {:>6s} {:>9s}".format("SpCost", "DpCost", "ApCost", "PpCost", "DrCost")
-        print(output_header)
+        #print(output_header)
 
         if len(self.animal_list) == 0:
             print("All Animals are Dead!")
@@ -325,7 +329,7 @@ class World:
                 output_string += " {:>3s},{:<3s} {:>4s} |".format(str(animal.position[0]), str(animal.position[1]),
                                                                   str(animal.orientation))
                 for i in range(animal.drive_system.num_drives):
-                    trimmed_drive = "{:<5.2f}".format(animal.drive_system.drive_value_array[i])
+                    trimmed_drive = "{:<5.3f}".format(animal.drive_system.drive_value_array[i])
                     output_string += "  {:>7s}".format(str(trimmed_drive))
                 output_string += " | "
 
