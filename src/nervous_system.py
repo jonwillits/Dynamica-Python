@@ -70,19 +70,20 @@ class NervousSystem:
     ############################################################################################################
     def __repr__(self):
         output_string = "Nervous System: {}-{}-{}\n".format(self.input_size, self.h_size, self.output_size)
-        output_string += "    Prediction Learning Rate: {}\n".format(self.p_learning_rate)
-        output_string += "    Health Reinforcement: {} {} {}\n".format(self.drive_direction_array[0],
-                                                                       self.drive_reinforcement_rate_matrix[0, 0],
-                                                                       self.drive_reinforcement_rate_matrix[1, 0])
-        output_string += "    Energy Reinforcement: {} {} {}\n".format(self.drive_direction_array[1],
-                                                                       self.drive_reinforcement_rate_matrix[0, 1],
-                                                                       self.drive_reinforcement_rate_matrix[1, 1])
-        output_string += "    Arousal Reinforcement: {} {} {}\n".format(self.drive_direction_array[2],
-                                                                        self.drive_reinforcement_rate_matrix[0, 2],
-                                                                        self.drive_reinforcement_rate_matrix[1, 2])
-        output_string += "    Action Biases"
+        output_string += "    Prediction Learning Rate: {:0.5f}\n".format(self.p_learning_rate)
+        output_string += "    Health Reinforcement:     {}   {:0.5f}   {:0.5f}\n".format(self.drive_direction_array[0],
+                                                                           self.drive_reinforcement_rate_matrix[0, 0],
+                                                                           self.drive_reinforcement_rate_matrix[1, 0])
+        output_string += "    Energy Reinforcement:     {}   {:0.5f}   {:0.5f}\n".format(self.drive_direction_array[1],
+                                                                           self.drive_reinforcement_rate_matrix[0, 1],
+                                                                           self.drive_reinforcement_rate_matrix[1, 1])
+        output_string += "    Arousal Reinforcement:    {}   {:0.5f}   {:0.5f}\n".format(self.drive_direction_array[2],
+                                                                           self.drive_reinforcement_rate_matrix[0, 2],
+                                                                           self.drive_reinforcement_rate_matrix[1, 2])
+        output_string += "    Action Biases\n"
         for i in range(self.animal.action_system.num_actions):
-            output_string += "    {}: {}\n".format(self.animal.action_system.action_list[i], self.action_bias_array[i])
+            output_string += "        {:>12s}:     {}\n".format(self.animal.action_system.action_list[i],
+                                                                self.action_bias_array[i])
 
         return output_string
 

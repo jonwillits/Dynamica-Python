@@ -22,7 +22,14 @@ class Genome:
 
     ############################################################################################################
     def __repr__(self):
-        return "Genome: {} Genes - {} Nucleotides\n".format(self.num_genes, self.num_nucleotides)
+        output_string = "Genome: {} Genes - {} Nucleotides\n".format(self.num_genes, self.num_nucleotides)
+        for i in range(self.num_genes):
+            output_string += '    {} {:24s}: {}\n'.format(self.gene_index_dict[self.gene_label_list[i]],
+                                                      self.gene_label_list[i],
+                                                      self.gene_list[i])
+
+        return output_string
+
 
     ############################################################################################################
     def inherit_genome(self, mother_genome, father_genome):

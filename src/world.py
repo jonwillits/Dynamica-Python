@@ -306,6 +306,7 @@ class World:
 
     ############################################################################################################
     def print_summary(self):
+
         output_header = "{:<5s} {:<14s}".format("Turn", "ID")
         output_header += "{:<9s} {:<7s} {:<5s}".format("Sex", "Age", "Size")
         output_header += " {:>3s},{:<3s} {:>4s} | ".format("X", "Y", "Dir")
@@ -319,11 +320,12 @@ class World:
             print("All Animals are Dead!")
         else:
             for animal in self.animal_list:
+
                 output_string = "{:<5s} {:<14s}".format(str(self.current_turn), animal.species+"-"+str(animal.id_number))
 
                 sex = str(animal.phenotype.trait_value_dict['Sex'])
                 if animal.pregnant:
-                    sex = sex + "+1"
+                    sex = sex + "+{}".format(animal.pregnant)
                 output_string += "{:<9s} {:<7s} {:<5s}".format(sex, str(animal.age),
                                                                str('{:<1.3f}'.format(animal.current_size)))
                 output_string += " {:>3s},{:<3s} {:>4s} |".format(str(animal.position[0]), str(animal.position[1]),
@@ -334,8 +336,18 @@ class World:
                 output_string += " | "
 
                 for i in range(animal.action_system.num_actions):
-                    trimmed_action = "{:<3.2f} ".format(animal.action_system.legal_action_prob_distribution[i])
-                    output_string += "{:<6s} ".format(str(trimmed_action))
+                    try:
+                        trimmed_action = "{:<3.2f} ".format(animal.action_system.legal_action_prob_distribution[i])
+                    except ValueError as argument:
+                        print(animal)
+                        print(animal.genome)
+                        print(animal.phenotype)
+                        print(animal.drive_system)
+                        print(animal.action_system)
+                        print(animal.nervous_system)
+                        print(argument)
+                        sys.exit(2)
+
                 output_string += "{:>9s}".format(animal.action_system.action_choice)
                 output_string += " | "
                 spv = animal.nervous_system.neural_network_prediction_cost[animal.nervous_system.s_indexes[0]:animal.nervous_system.s_indexes[1]]

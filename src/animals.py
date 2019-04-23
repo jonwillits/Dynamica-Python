@@ -50,7 +50,14 @@ class Animal:
 
     ############################################################################################################
     def __repr__(self):
-        return "{} {} {}\n".format(self.species, self.id_number, self.position)
+        output_string = "{} {}\n".format(self.species, self.id_number)
+        output_string += "    Position:     {}\n".format(self.position)
+        output_string += "    Orientation:  {}\n".format(self.orientation)
+        output_string += "    Age:          {}\n".format(self.age)
+        output_string += "    Current Size: {}\n".format(self.current_size)
+        output_string += "    Sex:          {}\n".format(self.phenotype.trait_value_dict['Sex'])
+        output_string += "    Pregnant:     {}\n".format(self.pregnant)
+        return output_string
 
     ############################################################################################################
     def take_turn(self):
@@ -100,7 +107,7 @@ class Animal:
                 else:
                     current_appearance[i] = appearance[i]
 
-            self.genome.gene_list[self.genome.gene_index_dict['Appearance']] = current_appearance
+            self.genome.gene_list[self.genome.gene_index_dict['Appearance']] = np.copy(current_appearance).astype(int)
             self.phenotype.trait_value_dict['Appearance'] = current_appearance
 
         self.appearance = self.phenotype.trait_value_dict['Appearance']

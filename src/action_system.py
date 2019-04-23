@@ -36,7 +36,7 @@ class ActionSystem:
                                       self.animal.nervous_system.a_indexes[1] + 1]
 
         for i in range(self.num_actions):
-            output_string += "    {:8s}: {:0.3f}  {}  {:0.3f}  {:0.3f}  {}\n".format(self.action_list[i],
+            output_string += "    {:12s}: {:0.3f}  {}  {:0.3f}  {:0.3f}  {}\n".format(self.action_list[i],
                                                                                      action_outputs[i],
                                                                                      self.legal_action_array[i],
                                                                                      self.gated_action_activations[i],

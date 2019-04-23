@@ -21,7 +21,21 @@ class Phenotype:
     def __repr__(self):
         output_string =  "Phenotype: {} Traits\n".format(self.num_traits)
         for trait in self.trait_value_dict:
-            output_string += "    {:16s}: {:0.3f}\n".format(trait, self.trait_value_dict[trait])
+            if isinstance(self.trait_value_dict[trait], np.ndarray):
+                value = ""
+                for e in self.trait_value_dict[trait]:
+                    if e.is_integer():
+                        value += "{:0.0f} ".format(e)
+                    else:
+                        value += "{:0.2f} ".format(e)
+                value = value[:-1]
+
+                #value = np.array2string(self.trait_value_dict[trait], precision=2, separator=', ', suppress_small=True)
+            elif isinstance(self.trait_value_dict[trait], float):
+                value = "{:0.3f}".format(self.trait_value_dict[trait])
+            else:
+                value = self.trait_value_dict[trait]
+            output_string += "    {:24s}: {}\n".format(trait, str(value))
         return output_string
 
     ############################################################################################################
