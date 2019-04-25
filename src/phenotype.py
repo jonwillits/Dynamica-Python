@@ -29,8 +29,6 @@ class Phenotype:
                     else:
                         value += "{:0.2f} ".format(e)
                 value = value[:-1]
-
-                #value = np.array2string(self.trait_value_dict[trait], precision=2, separator=', ', suppress_small=True)
             elif isinstance(self.trait_value_dict[trait], float):
                 value = "{:0.3f}".format(self.trait_value_dict[trait])
             else:
@@ -73,19 +71,3 @@ class Phenotype:
 
             elif self.trait_gene_size_dict[trait][1] == 'vector':
                 self.trait_value_dict[trait] = gene
-
-    # ############################################################################################################
-    # def update_appearance(self, appearance=None):
-    #     self.appearance = appearance
-    #     gene_location = self.genome_size - config.World.appearance_size
-    #     for i in range(len(self.appearance)):
-    #         if random.random() < config.Animal.within_sex_variance:
-    #             if self.appearance[i] == 0:
-    #                 self.appearance[i] = 1
-    #             else:
-    #                 self.appearance[i] = 0
-    #         if self.appearance[i] == 0:
-    #             self.genome[gene_location + i] = random.choice(["AC", "CA"])
-    #         else:
-    #             self.genome[gene_location + i] = random.choice(["GT", "TG"])
-    #     self.appearance[0] = self.current_size / 5

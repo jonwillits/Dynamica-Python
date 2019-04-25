@@ -1,5 +1,6 @@
 ############################################################################################################
 class GlobalOptions:
+    verbose = False
     random_seed = None
     summary_freq = 1
     window_height = 800
@@ -8,8 +9,8 @@ class GlobalOptions:
 
 ############################################################################################################
 class World:
-    num_rows = 20  # rows x grid size-1 must be < window_height
-    num_columns = 20  # columns x grid size-1 must be < window_width
+    num_rows = 10  # rows x grid size-1 must be < window_height
+    num_columns = 10  # columns x grid size-1 must be < window_width
     grid_size = 32  # the width and height of each grid square (in pixels)
     appearance_size = 20  # this is the size of the appearance vector generated for each thing
 
@@ -44,11 +45,11 @@ class Animal:
     gestation_rate = 50
     childhood_length = 100
 
-    attack_strength = 1
+    attack_strength = 10
     teeth_attack_strength = 20
 
-    metabolism = 2.0
-    pregnant_metabolism = 4.0
+    metabolism = 4.0
+    pregnant_metabolism = 8.0
 
     starvation_rate = 1.0
 
@@ -56,6 +57,8 @@ class Animal:
                             'Plains': True,
                             'Desert': True
                             }
+
+    drive_init_dict = {'Health': 1.0, 'Energy': 1.0, 'Arousal': 0.0}
 
     action_drive_change_dict = {'Rest':      {'Health': 1.0, 'Energy': -0.01, 'Arousal': 0.0},
                                 'Attack':    {'Health': 0.0, 'Energy': -0.10, 'Arousal': 0.0},
@@ -73,13 +76,13 @@ class Animal:
                             'Num Hidden Neurons':       (8, 'binary'),
                             'Weight Init Stdev':        (8, 'inv_binary'),
                             'Prediction Learning Rate': (8, 'inv_binary'),
-                            'Health Value Direction':   (1, 'direction'),
+                            'Health Value Target':      (4, 'inv_binary'),
                             'Health Learning Rate':     (8, 'inv_binary'),
                             'HealthD Learning Rate':    (8, 'inv_binary'),
-                            'Energy Value Direction':   (1, 'direction'),
+                            'Energy Value Target':      (4, 'inv_binary'),
                             'Energy Learning Rate':     (8, 'inv_binary'),
                             'EnergyD Learning Rate':    (8, 'inv_binary'),
-                            'Arousal Value Direction':  (1, 'direction'),
+                            'Arousal Value Target':     (4, 'inv_binary'),
                             'Arousal Learning Rate':    (8, 'inv_binary'),
                             'ArousalD Learning Rate':   (8, 'inv_binary'),
                             'Rest Bias':                (4, 'sum'),
@@ -88,7 +91,8 @@ class Animal:
                             'Procreate Bias':           (4, 'sum'),
                             'Turn Bias':                (4, 'sum'),
                             'Move Bias':                (4, 'sum'),
-                            'Appearance':               (20, 'vector')
+                            'Appearance':               (20, 'vector'),
+                            'Arousal Growth':           (8,  'inv_binary')
                             }
 
 
@@ -100,5 +104,5 @@ class Lion:
 
 ############################################################################################################
 class Zebra:
-    start_number = 20
+    start_number = 10
     diet_dict = {'Meat': False, 'Plants': True}

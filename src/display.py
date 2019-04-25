@@ -101,17 +101,17 @@ class Display:
 
         game_frame.bind("<Configure>", lambda event, canvas=self.main_canvas: on_frame_configure(canvas))
 
-        self.main_canvas.bind("<Button-1>", self.main_canvas_onclick)
+        self.main_canvas.bind('<Double-Button-1>', self.main_canvas_on_double_click)
 
     ############################################################################################################
-    def main_canvas_onclick(self, event):
+    def main_canvas_on_double_click(self, event):
         canvas = event.widget
         x = canvas.canvasx(event.x)
         y = canvas.canvasy(event.y)
         self.show_tile_click_info(x, y)
 
     ############################################################################################################
-    def animal_summary_onclick(self, event):
+    def animal_summary_on_double_click(self, event):
         species = 'Zebra'
         if self.species_summary_window is not None:
             self.species_summary_window.destroy()
@@ -223,8 +223,8 @@ class Display:
         zebra_text_string = "Zebra   Qty: {:5s}   Health: {:<7s}   Energy: {:<7s}    Arousal: {:<7s}".format(qty, health, energy, arousal)
         zebra_text_label = tk.Label(summary_frame, text=zebra_text_string, font="Verdana 10", anchor=tk.W)
         zebra_text_label.place(x=70, y=190)
-        zebra_image_label.bind("<Button-1>", self.animal_summary_onclick)
-        zebra_text_label.bind("<Button-1>", self.animal_summary_onclick)
+        zebra_image_label.bind('<Double-Button-1>', self.animal_summary_on_double_click)
+        zebra_text_label.bind('<Double-Button-1>', self.animal_summary_on_double_click)
 
     ############################################################################################################
     def draw_animals(self):
@@ -414,38 +414,43 @@ class SpeciesInfoWindow:
         summary_title1.place(x=20, y=300)
         summary_title2.place(x=240, y=300)
 
-        summary_string = "  {:0.3f}      {:0.3f}".format(s0['Action Outputs'][0], st['Action Outputs'][0])
-        summary_title1 = tk.Label(summary_frame, text="Average Rest Activation:", font="Verdana 12 bold", anchor=tk.W)
+        so_action_outputs = s0['Action Outputs']
+        st_action_outputs = st['Action Outputs']
+        so_action_probs = so_action_outputs / so_action_outputs.sum()
+        st_action_probs = st_action_outputs / st_action_outputs.sum()
+
+        summary_string = "  {:0.3f}      {:0.3f}".format(so_action_probs[0], st_action_probs[0])
+        summary_title1 = tk.Label(summary_frame, text="Average Rest Probability:", font="Verdana 12 bold", anchor=tk.W)
         summary_title2 = tk.Label(summary_frame, text=summary_string, font="Verdana 12", anchor=tk.W)
         summary_title1.place(x=20, y=330)
         summary_title2.place(x=240, y=330)
 
-        summary_string = "  {:0.3f}      {:0.3f}".format(s0['Action Outputs'][1], st['Action Outputs'][1])
-        summary_title1 = tk.Label(summary_frame, text="Average Attack Activation:", font="Verdana 12 bold", anchor=tk.W)
+        summary_string = "  {:0.3f}      {:0.3f}".format(so_action_probs[1], st_action_probs[1])
+        summary_title1 = tk.Label(summary_frame, text="Average Attack Probability:", font="Verdana 12 bold", anchor=tk.W)
         summary_title2 = tk.Label(summary_frame, text=summary_string, font="Verdana 12", anchor=tk.W)
         summary_title1.place(x=20, y=350)
         summary_title2.place(x=240, y=350)
 
-        summary_string = "  {:0.3f}      {:0.3f}".format(s0['Action Outputs'][2], st['Action Outputs'][2])
-        summary_title1 = tk.Label(summary_frame, text="Average Eat Activation:", font="Verdana 12 bold", anchor=tk.W)
+        summary_string = "  {:0.3f}      {:0.3f}".format(so_action_probs[2], st_action_probs[2])
+        summary_title1 = tk.Label(summary_frame, text="Average Eat Probability:", font="Verdana 12 bold", anchor=tk.W)
         summary_title2 = tk.Label(summary_frame, text=summary_string, font="Verdana 12", anchor=tk.W)
         summary_title1.place(x=20, y=370)
         summary_title2.place(x=240, y=370)
 
-        summary_string = "  {:0.3f}      {:0.3f}".format(s0['Action Outputs'][3], st['Action Outputs'][3])
-        summary_title1 = tk.Label(summary_frame, text="Average Procreate Activation:", font="Verdana 12 bold", anchor=tk.W)
+        summary_string = "  {:0.3f}      {:0.3f}".format(so_action_probs[3], st_action_probs[3])
+        summary_title1 = tk.Label(summary_frame, text="Average Procreate Probability:", font="Verdana 12 bold", anchor=tk.W)
         summary_title2 = tk.Label(summary_frame, text=summary_string, font="Verdana 12", anchor=tk.W)
         summary_title1.place(x=20, y=390)
         summary_title2.place(x=240, y=390)
 
-        summary_string = "  {:0.3f}      {:0.3f}".format(s0['Action Outputs'][4], st['Action Outputs'][4])
-        summary_title1 = tk.Label(summary_frame, text="Average Turn Activation:", font="Verdana 12 bold", anchor=tk.W)
+        summary_string = "  {:0.3f}      {:0.3f}".format(so_action_probs[4], st_action_probs[4])
+        summary_title1 = tk.Label(summary_frame, text="Average Turn Probability:", font="Verdana 12 bold", anchor=tk.W)
         summary_title2 = tk.Label(summary_frame, text=summary_string, font="Verdana 12", anchor=tk.W)
         summary_title1.place(x=20, y=410)
         summary_title2.place(x=240, y=410)
 
-        summary_string = "  {:0.3f}      {:0.3f}".format(s0['Action Outputs'][5], st['Action Outputs'][5])
-        summary_title1 = tk.Label(summary_frame, text="Average Move Activation:", font="Verdana 12 bold", anchor=tk.W)
+        summary_string = "  {:0.3f}      {:0.3f}".format(so_action_probs[5], st_action_probs[5])
+        summary_title1 = tk.Label(summary_frame, text="Average Move Probability:", font="Verdana 12 bold", anchor=tk.W)
         summary_title2 = tk.Label(summary_frame, text=summary_string, font="Verdana 12", anchor=tk.W)
         summary_title1.place(x=20, y=430)
         summary_title2.place(x=240, y=430)

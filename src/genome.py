@@ -5,7 +5,6 @@ import numpy as np
 
 ############################################################################################################
 class Genome:
-
     ############################################################################################################
     def __init__(self, animal, mother_genome=None, father_genome=None):
         self.animal = animal
@@ -29,7 +28,6 @@ class Genome:
                                                       self.gene_list[i])
 
         return output_string
-
 
     ############################################################################################################
     def inherit_genome(self, mother_genome, father_genome):

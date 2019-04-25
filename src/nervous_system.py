@@ -1,5 +1,6 @@
 import numpy as np
 from src import config
+from copy import deepcopy
 
 
 ############################################################################################################
@@ -37,7 +38,8 @@ class NervousSystem:
         self.action_bias_array = None
 
         # the external information about drives and actions that the network uses
-        self.drive_direction_array = None
+        self.drive_target_array = None
+        self.drive_change_target_array = None
         self.drive_reinforcement_rate_matrix = None
         self.drive_value_change = None
 
@@ -71,13 +73,13 @@ class NervousSystem:
     def __repr__(self):
         output_string = "Nervous System: {}-{}-{}\n".format(self.input_size, self.h_size, self.output_size)
         output_string += "    Prediction Learning Rate: {:0.5f}\n".format(self.p_learning_rate)
-        output_string += "    Health Reinforcement:     {}   {:0.5f}   {:0.5f}\n".format(self.drive_direction_array[0],
+        output_string += "    Health Reinforcement:     {}   {:0.5f}   {:0.5f}\n".format(self.drive_target_array[0],
                                                                            self.drive_reinforcement_rate_matrix[0, 0],
                                                                            self.drive_reinforcement_rate_matrix[1, 0])
-        output_string += "    Energy Reinforcement:     {}   {:0.5f}   {:0.5f}\n".format(self.drive_direction_array[1],
+        output_string += "    Energy Reinforcement:     {}   {:0.5f}   {:0.5f}\n".format(self.drive_target_array[1],
                                                                            self.drive_reinforcement_rate_matrix[0, 1],
                                                                            self.drive_reinforcement_rate_matrix[1, 1])
-        output_string += "    Arousal Reinforcement:    {}   {:0.5f}   {:0.5f}\n".format(self.drive_direction_array[2],
+        output_string += "    Arousal Reinforcement:    {}   {:0.5f}   {:0.5f}\n".format(self.drive_target_array[2],
                                                                            self.drive_reinforcement_rate_matrix[0, 2],
                                                                            self.drive_reinforcement_rate_matrix[1, 2])
         output_string += "    Action Biases\n"
@@ -117,23 +119,27 @@ class NervousSystem:
             trait = self.animal.action_system.action_list[i] + " Bias"
             self.action_bias_array[i] = self.animal.phenotype.trait_value_dict[trait]
 
-        # initialize learning rates
+        # initialize prediction learning rate
         self.p_learning_rate = self.animal.phenotype.trait_value_dict['Prediction Learning Rate']
 
-        self.drive_direction_array = np.zeros([3], float)
-        self.drive_direction_array[0] = self.animal.phenotype.trait_value_dict['Health Value Direction']
-        self.drive_direction_array[1] = self.animal.phenotype.trait_value_dict['Energy Value Direction']
-        self.drive_direction_array[2] = self.animal.phenotype.trait_value_dict['Arousal Value Direction']
+        # initialize drive targets
+        self.drive_target_array = np.zeros([self.animal.drive_system.num_drives], float)
+        for i in range(self.animal.drive_system.num_drives):
+            target_string = self.animal.drive_system.drive_list[i] + " Value Target"
+            self.drive_target_array[i] = self.animal.phenotype.trait_value_dict[target_string]
 
-        self.drive_reinforcement_rate_matrix = np.zeros([2, 3], float)
-        self.drive_reinforcement_rate_matrix[0, 0] = self.animal.phenotype.trait_value_dict['Health Learning Rate']
-        self.drive_reinforcement_rate_matrix[1, 0] = self.animal.phenotype.trait_value_dict['HealthD Learning Rate']
-        self.drive_reinforcement_rate_matrix[0, 1] = self.animal.phenotype.trait_value_dict['Energy Learning Rate']
-        self.drive_reinforcement_rate_matrix[1, 1] = self.animal.phenotype.trait_value_dict['EnergyD Learning Rate']
-        self.drive_reinforcement_rate_matrix[0, 2] = self.animal.phenotype.trait_value_dict['Arousal Learning Rate']
-        self.drive_reinforcement_rate_matrix[1, 2] = self.animal.phenotype.trait_value_dict['ArousalD Learning Rate']
+        # initialize drive target and drive change target learning rates
+        self.drive_reinforcement_rate_matrix = np.zeros([2, self.animal.drive_system.num_drives], float)
+        for i in range(self.animal.drive_system.num_drives):
+            target_string = self.animal.drive_system.drive_list[i] + " Learning Rate"
+            target_change_string = self.animal.drive_system.drive_list[i] + "D Learning Rate"
+            self.drive_reinforcement_rate_matrix[0, i] = self.animal.phenotype.trait_value_dict[target_string]
+            self.drive_reinforcement_rate_matrix[1, i] = self.animal.phenotype.trait_value_dict[target_change_string]
 
+        # create the neural network
         self.neural_network = NeuralNetwork(self.input_size, self.h_size, self.output_size, self.weight_init_stdev)
+
+        # initialize innate biases
         self.neural_network.o_bias[self.a_indexes[0]:self.a_indexes[1]+1] = self.action_bias_array
 
         # initialize layer activations for recurrency
@@ -242,6 +248,46 @@ class NervousSystem:
         self.neural_network_prediction_cost = self.neural_network.calc_cost(y_actual, y_predicted)
         self.neural_network.backpropogation(self.neural_input_state, y_predicted, self.neural_hidden_state,
                                             self.neural_network_prediction_cost, self.p_learning_rate)
+
+        for i in range(self.animal.drive_system.num_drives):
+            drive_value_cost_array, drive_change_cost_array = self.calculate_drive_costs(i)
+            drive_value_learning_rate = self.drive_reinforcement_rate_matrix[0, i]
+            drive_change_learning_rate = self.drive_reinforcement_rate_matrix[1, i]
+
+            self.neural_network.backpropogation(self.neural_input_state, y_predicted, self.neural_hidden_state,
+                                                drive_value_cost_array, drive_value_learning_rate)
+
+            self.neural_network.backpropogation(self.neural_input_state, y_predicted, self.neural_hidden_state,
+                                                drive_change_cost_array, drive_change_learning_rate)
+
+    ############################################################################################################
+    def calculate_drive_costs(self, drive_index):
+
+        action_choice = self.animal.action_system.action_choice
+        action_index = self.animal.action_system.action_index_dict[action_choice]
+        full_action_index = action_index + self.a_indexes[0]
+
+        drive = self.animal.drive_system.drive_list[drive_index]
+
+        drive_value = self.animal.drive_system.drive_value_array[drive_index]
+        drive_value_target = self.drive_target_array[drive_index]
+        drive_value_error = drive_value_target - drive_value
+        drive_value_cost = -1 * abs(drive_value_error)
+        drive_value_cost_array = np.zeros(self.output_size)
+        drive_value_cost_array[full_action_index] = drive_value_cost
+
+        drive_change = self.animal.drive_system.drive_value_array[drive_index] - self.animal.drive_system.last_drive_value_array[drive_index]
+        drive_change_target = drive_value_error
+        drive_change_error = drive_change_target - drive_change
+        drive_change_cost = -1 * abs(drive_change_error)
+        drive_change_cost_array = np.zeros(self.output_size)
+        drive_change_cost_array[full_action_index] = drive_change_cost
+
+        #print("\n" + drive)
+        #print("Value: {:0.4f}    Goal: {:0.4f}   Error: {:0.3f}   Cost: {:0.3f}".format(drive_value, drive_value_target, drive_value_error, drive_value_cost))
+        #print("Change: {:0.4f}   Goal: {:0.4f}   Error: {:0.3f}   Cost: {:0.3f}".format(drive_change, drive_change_target, drive_change_error, drive_change_cost))
+
+        return drive_value_cost_array, drive_change_cost_array
 
 
 ############################################################################################################

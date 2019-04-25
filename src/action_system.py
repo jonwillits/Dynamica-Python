@@ -197,11 +197,25 @@ class ActionSystem:
         forward_tile = self.animal.nervous_system.view_list[2]
         patient = self.animal.the_world.map[forward_tile].animal_list[0]
 
-        damage = (self.animal.attack_strength * self.animal.current_size)/100
-        patient.drive_system.drive_value_array[patient.drive_system.drive_index_dict['Health']] -= damage
+        damage1 = (self.animal.attack_strength * self.animal.current_size)/100
+        start_health1 = patient.drive_system.drive_value_array[patient.drive_system.drive_index_dict['Health']]
+        patient.drive_system.drive_value_array[patient.drive_system.drive_index_dict['Health']] -= damage1
+        end_health1 = patient.drive_system.drive_value_array[patient.drive_system.drive_index_dict['Health']]
 
-        damage = (patient.attack_strength * patient.current_size)/100
-        self.animal.drive_system.drive_value_array[patient.drive_system.drive_index_dict['Health']] -= damage
+        damage2 = (patient.attack_strength * patient.current_size)/100
+        start_health2 = self.animal.drive_system.drive_value_array[patient.drive_system.drive_index_dict['Health']]
+        self.animal.drive_system.drive_value_array[patient.drive_system.drive_index_dict['Health']] -= damage2
+        end_health2 = self.animal.drive_system.drive_value_array[patient.drive_system.drive_index_dict['Health']]
+
+        if config.GlobalOptions.verbose:
+            print("\n{} {} Attack!".format(self.animal.species, self.animal.id_number))
+            print("Attacker: {} {}   Size: {:0.3f}    Attack Strength: {}".format(self.animal.species, self.animal.id_number,
+                                                                             self.animal.current_size, self.animal.attack_strength))
+            print("Defender: {} {}   Size: {:0.3f}    Attack Strength: {}".format(patient.species, patient.id_number,
+                                                                             patient.current_size, patient.attack_strength))
+            print("Attacker did {} damage to defender, taking health from {} to {}".format(damage1, start_health1, end_health1))
+            print("Defender did {} damage to attacker, taking health from {} to {}\n".format(damage2, start_health2, end_health2))
+            print(damage1, damage2)
 
         self.action_argument_choice_array = patient.appearance
 

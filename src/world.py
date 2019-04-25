@@ -204,7 +204,7 @@ class World:
         size_sum = 0.0
         hidden_sum = 0.0
         learning_rate_sum = 0.0
-        drive_direction_sums = np.zeros([3], float)
+        drive_target_sums = np.zeros([3], float)
         drive_reinforcement_sums = np.zeros([2, 3], float)
         action_output_sums = np.zeros([6], float)
 
@@ -223,7 +223,7 @@ class World:
                 hidden_sum += animal.phenotype.trait_value_dict['Num Hidden Neurons']
                 learning_rate_sum += animal.phenotype.trait_value_dict['Prediction Learning Rate']
 
-                drive_direction_sums += animal.nervous_system.drive_direction_array
+                drive_target_sums += animal.nervous_system.drive_target_array
                 drive_reinforcement_sums += animal.nervous_system.drive_reinforcement_rate_matrix
                 action_output_sums += action_outputs
 
@@ -233,7 +233,7 @@ class World:
             animal_summary_dict['Size'] = size_sum / animal_summary_dict['N']
             animal_summary_dict['Hidden Neurons'] = hidden_sum / animal_summary_dict['N']
             animal_summary_dict['Prediction Learning Rate'] = learning_rate_sum / animal_summary_dict['N']
-            animal_summary_dict['Drive Direction Values'] = drive_direction_sums / animal_summary_dict['N']
+            animal_summary_dict['Drive Direction Values'] = drive_target_sums / animal_summary_dict['N']
             animal_summary_dict['Drive Reinforcement Rates'] = \
                 drive_reinforcement_sums / animal_summary_dict['N']
             animal_summary_dict['Action Outputs'] = action_output_sums / animal_summary_dict['N']
@@ -243,7 +243,7 @@ class World:
             animal_summary_dict['Size'] = size_sum
             animal_summary_dict['Hidden Neurons'] = hidden_sum
             animal_summary_dict['Prediction Learning Rate'] = learning_rate_sum
-            animal_summary_dict['Drive Direction Values'] = drive_direction_sums
+            animal_summary_dict['Drive Direction Values'] = drive_target_sums
             animal_summary_dict['Drive Reinforcement Rates'] = drive_reinforcement_sums
             animal_summary_dict['Action Outputs'] = action_output_sums
 
@@ -314,7 +314,8 @@ class World:
         output_header += "{:<6s} {:<6s} {:<6s} {:<6s} {:<6s} {:<6s}| ".format("Rest", "Attack", "Eat", "Procreate", "Turn", "Move")
         output_header += "{:>9s}".format("Choice")
         output_header += " | {:>6s} {:>6s} {:>6s} {:>6s} {:>9s}".format("SpCost", "DpCost", "ApCost", "PpCost", "DrCost")
-        #print(output_header)
+        if len(self.animal_list) > 1 or self.current_turn % 10 == 0:
+            print(output_header)
 
         if len(self.animal_list) == 0:
             print("All Animals are Dead!")
@@ -337,15 +338,16 @@ class World:
 
                 for i in range(animal.action_system.num_actions):
                     try:
-                        trimmed_action = "{:<3.2f} ".format(animal.action_system.legal_action_prob_distribution[i])
+                        output_string += " {:<3.2f} ".format(animal.action_system.legal_action_prob_distribution[i])
                     except ValueError as argument:
+                        print('\n\n')
                         print(animal)
                         print(animal.genome)
                         print(animal.phenotype)
                         print(animal.drive_system)
                         print(animal.action_system)
                         print(animal.nervous_system)
-                        print(argument)
+                        print('\n' + str(argument) + '\n')
                         sys.exit(2)
 
                 output_string += "{:>9s}".format(animal.action_system.action_choice)
