@@ -204,6 +204,7 @@ class World:
         size_sum = 0.0
         hidden_sum = 0.0
         learning_rate_sum = 0.0
+        weight_init_stdev_sum = 0.0
         drive_target_sums = np.zeros([3], float)
         drive_reinforcement_sums = np.zeros([2, 3], float)
         action_output_sums = np.zeros([6], float)
@@ -222,30 +223,25 @@ class World:
                 size_sum += animal.phenotype.trait_value_dict['Max Size']
                 hidden_sum += animal.phenotype.trait_value_dict['Num Hidden Neurons']
                 learning_rate_sum += animal.phenotype.trait_value_dict['Prediction Learning Rate']
-
+                weight_init_stdev_sum += animal.phenotype.trait_value_dict['Weight Init Stdev']
                 drive_target_sums += animal.nervous_system.drive_target_array
                 drive_reinforcement_sums += animal.nervous_system.drive_reinforcement_rate_matrix
                 action_output_sums += action_outputs
 
         if animal_summary_dict['N'] > 0:
-            animal_summary_dict['Sex'] = sex_sum / animal_summary_dict['N']
-            animal_summary_dict['Age'] = age_sum / animal_summary_dict['N']
-            animal_summary_dict['Size'] = size_sum / animal_summary_dict['N']
-            animal_summary_dict['Hidden Neurons'] = hidden_sum / animal_summary_dict['N']
-            animal_summary_dict['Prediction Learning Rate'] = learning_rate_sum / animal_summary_dict['N']
-            animal_summary_dict['Drive Direction Values'] = drive_target_sums / animal_summary_dict['N']
-            animal_summary_dict['Drive Reinforcement Rates'] = \
-                drive_reinforcement_sums / animal_summary_dict['N']
-            animal_summary_dict['Action Outputs'] = action_output_sums / animal_summary_dict['N']
+            n = animal_summary_dict['N']
         else:
-            animal_summary_dict['Sex'] = sex_sum
-            animal_summary_dict['Age'] = age_sum
-            animal_summary_dict['Size'] = size_sum
-            animal_summary_dict['Hidden Neurons'] = hidden_sum
-            animal_summary_dict['Prediction Learning Rate'] = learning_rate_sum
-            animal_summary_dict['Drive Direction Values'] = drive_target_sums
-            animal_summary_dict['Drive Reinforcement Rates'] = drive_reinforcement_sums
-            animal_summary_dict['Action Outputs'] = action_output_sums
+            n = 1
+
+        animal_summary_dict['Sex'] = sex_sum / n
+        animal_summary_dict['Age'] = age_sum / n
+        animal_summary_dict['Size'] = size_sum / n
+        animal_summary_dict['Hidden Neurons'] = hidden_sum / n
+        animal_summary_dict['Prediction Learning Rate'] = learning_rate_sum / n
+        animal_summary_dict['Weight Init Stdev'] = weight_init_stdev_sum / n
+        animal_summary_dict['Drive Targets'] = drive_target_sums / n
+        animal_summary_dict['Drive Reinforcement Rates'] = drive_reinforcement_sums / n
+        animal_summary_dict['Action Outputs'] = action_output_sums / n
 
         return animal_summary_dict
 

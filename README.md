@@ -40,7 +40,7 @@ An output layer with 4 subcomponents:
   <li>an action argument array, which the network uses as an argument modifying the action (such as how much to turn if turn is selected as the action, or what to eat if eat is selected as the action
 </ol>
   
-The input and output layers are connected by a a recurrent hidden layer (techically, the hidden state at time t-1 is an additional sub-component of the input layer, meaning that one of the inputs into the hidden layer is it's own state at the previous time step, like in a simple recurrent network (Elman, 1990).
+The input and output layers are connected by a a recurrent hidden layer (technically, the hidden state at time t-1 is an additional sub-component of the input layer, meaning that one of the inputs into the hidden layer is it's own state at the previous time step, like in a simple recurrent network (Elman, 1990).
 
 The network learns in two different ways.
 
@@ -52,7 +52,7 @@ The network learns in two different ways.
   <li>comparing its action argument activation to the actual argument selected. This has the effect of creating attractors for the representation of actual objects that can be patients.
 </ol>
 
-2. reinforcement learning: the network is trained through backprogation that certain outcomes are good or bad. As currently implimented, this all happens via a cost to the output unit for the action the agent just took. For each drive and for each drive delta, a score is computed for how far that drive state or drive delta was from a pre-defined target. That difference is considered the cost/error for that action output unit, and it's weight's are changed accordingly (as well as backpropogated through the hidden layer).
+2. reinforcement learning: the network is trained through backpropogation that certain outcomes are good or bad. As currently implemented, this all happens via a cost to the output unit for the action the agent just took. For each drive and for each drive delta, a score is computed for how far that drive state or drive delta was from a pre-defined target. That difference is considered the cost/error for that action output unit, and it's weight's are changed accordingly (as well as backpropogated through the hidden layer).
 
 Thus, through the prediction learning in the network, the agents can get good at predicting what the consequences of their actions will be, in terms of changes to their internal and external state. The reinforcement learning teaches the agent that some of these changes are bad and should be punished so that they dont take the actions that led to those changes as often in the future.
 

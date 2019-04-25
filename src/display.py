@@ -372,47 +372,74 @@ class SpeciesInfoWindow:
         summary_title1.place(x=20, y=180)
         summary_title2.place(x=240, y=180)
 
-        summary_string = "  {:0.3f}      {:0.3f}".format(s0['Drive Reinforcement Rates'][0, 0],
-                                                         st['Drive Reinforcement Rates'][0, 0])
-        summary_title1 = tk.Label(summary_frame, text="Average Health+:", font="Verdana 12 bold", anchor=tk.W)
+        summary_string = "  {:0.3f}      {:0.3f}".format(s0['Weight Init Stdev'], st['Weight Init Stdev'])
+        summary_title1 = tk.Label(summary_frame, text="Weight Init Stdev:", font="Verdana 12 bold", anchor=tk.W)
         summary_title2 = tk.Label(summary_frame, text=summary_string, font="Verdana 12", anchor=tk.W)
         summary_title1.place(x=20, y=200)
         summary_title2.place(x=240, y=200)
 
+        summary_string = "  {:0.3f}      {:0.3f}".format(s0['Drive Targets'][0],
+                                                         st['Drive Targets'][0])
+        summary_title1 = tk.Label(summary_frame, text="Health Target:", font="Verdana 12 bold", anchor=tk.W)
+        summary_title2 = tk.Label(summary_frame, text=summary_string, font="Verdana 12", anchor=tk.W)
+        summary_title1.place(x=20, y=230)
+        summary_title2.place(x=240, y=230)
+
+        summary_string = "  {:0.3f}      {:0.3f}".format(s0['Drive Reinforcement Rates'][0, 0],
+                                                         st['Drive Reinforcement Rates'][0, 0])
+        summary_title1 = tk.Label(summary_frame, text="Health Value LR:", font="Verdana 12 bold", anchor=tk.W)
+        summary_title2 = tk.Label(summary_frame, text=summary_string, font="Verdana 12", anchor=tk.W)
+        summary_title1.place(x=20, y=250)
+        summary_title2.place(x=240, y=250)
+
         summary_string = "  {:0.3f}      {:0.3f}".format(s0['Drive Reinforcement Rates'][1, 0],
                                                          st['Drive Reinforcement Rates'][1, 0])
-        summary_title1 = tk.Label(summary_frame, text="Average Health-:", font="Verdana 12 bold", anchor=tk.W)
+        summary_title1 = tk.Label(summary_frame, text="Health Change LR:", font="Verdana 12 bold", anchor=tk.W)
         summary_title2 = tk.Label(summary_frame, text=summary_string, font="Verdana 12", anchor=tk.W)
-        summary_title1.place(x=20, y=220)
-        summary_title2.place(x=240, y=220)
+        summary_title1.place(x=20, y=270)
+        summary_title2.place(x=240, y=270)
+
+        summary_string = "  {:0.3f}      {:0.3f}".format(s0['Drive Targets'][1],
+                                                         st['Drive Targets'][1])
+        summary_title1 = tk.Label(summary_frame, text="Energy Target:", font="Verdana 12 bold", anchor=tk.W)
+        summary_title2 = tk.Label(summary_frame, text=summary_string, font="Verdana 12", anchor=tk.W)
+        summary_title1.place(x=20, y=290)
+        summary_title2.place(x=240, y=290)
 
         summary_string = "  {:0.3f}      {:0.3f}".format(s0['Drive Reinforcement Rates'][0, 1],
                                                          st['Drive Reinforcement Rates'][0, 1])
-        summary_title1 = tk.Label(summary_frame, text="Average Energy+:", font="Verdana 12 bold", anchor=tk.W)
+        summary_title1 = tk.Label(summary_frame, text="Energy Value LR:", font="Verdana 12 bold", anchor=tk.W)
         summary_title2 = tk.Label(summary_frame, text=summary_string, font="Verdana 12", anchor=tk.W)
-        summary_title1.place(x=20, y=240)
-        summary_title2.place(x=240, y=240)
+        summary_title1.place(x=20, y=310)
+        summary_title2.place(x=240, y=310)
 
         summary_string = "  {:0.3f}      {:0.3f}".format(s0['Drive Reinforcement Rates'][1, 1],
                                                          st['Drive Reinforcement Rates'][1, 1])
-        summary_title1 = tk.Label(summary_frame, text="Average Energy-:", font="Verdana 12 bold", anchor=tk.W)
+        summary_title1 = tk.Label(summary_frame, text="Energy Change LR:", font="Verdana 12 bold", anchor=tk.W)
         summary_title2 = tk.Label(summary_frame, text=summary_string, font="Verdana 12", anchor=tk.W)
-        summary_title1.place(x=20, y=260)
-        summary_title2.place(x=240, y=260)
+        summary_title1.place(x=20, y=330)
+        summary_title2.place(x=240, y=330)
+
+        summary_string = "  {:0.3f}      {:0.3f}".format(s0['Drive Targets'][2],
+                                                         st['Drive Targets'][2])
+        summary_title1 = tk.Label(summary_frame, text="Arousal Target:", font="Verdana 12 bold", anchor=tk.W)
+        summary_title2 = tk.Label(summary_frame, text=summary_string, font="Verdana 12", anchor=tk.W)
+        summary_title1.place(x=20, y=350)
+        summary_title2.place(x=240, y=350)
 
         summary_string = "  {:0.3f}      {:0.3f}".format(s0['Drive Reinforcement Rates'][0, 2],
                                                          st['Drive Reinforcement Rates'][0, 2])
-        summary_title1 = tk.Label(summary_frame, text="Average Arousal+:", font="Verdana 12 bold", anchor=tk.W)
+        summary_title1 = tk.Label(summary_frame, text="Arousal Value LR:", font="Verdana 12 bold", anchor=tk.W)
         summary_title2 = tk.Label(summary_frame, text=summary_string, font="Verdana 12", anchor=tk.W)
-        summary_title1.place(x=20, y=280)
-        summary_title2.place(x=240, y=280)
+        summary_title1.place(x=20, y=370)
+        summary_title2.place(x=240, y=370)
 
         summary_string = "  {:0.3f}      {:0.3f}".format(s0['Drive Reinforcement Rates'][1, 2],
                                                          st['Drive Reinforcement Rates'][1, 2])
-        summary_title1 = tk.Label(summary_frame, text="Average Arousal-:", font="Verdana 12 bold", anchor=tk.W)
+        summary_title1 = tk.Label(summary_frame, text="Arousal Change LR:", font="Verdana 12 bold", anchor=tk.W)
         summary_title2 = tk.Label(summary_frame, text=summary_string, font="Verdana 12", anchor=tk.W)
-        summary_title1.place(x=20, y=300)
-        summary_title2.place(x=240, y=300)
+        summary_title1.place(x=20, y=390)
+        summary_title2.place(x=240, y=390)
 
         so_action_outputs = s0['Action Outputs']
         st_action_outputs = st['Action Outputs']
@@ -422,38 +449,38 @@ class SpeciesInfoWindow:
         summary_string = "  {:0.3f}      {:0.3f}".format(so_action_probs[0], st_action_probs[0])
         summary_title1 = tk.Label(summary_frame, text="Average Rest Probability:", font="Verdana 12 bold", anchor=tk.W)
         summary_title2 = tk.Label(summary_frame, text=summary_string, font="Verdana 12", anchor=tk.W)
-        summary_title1.place(x=20, y=330)
-        summary_title2.place(x=240, y=330)
+        summary_title1.place(x=20, y=420)
+        summary_title2.place(x=240, y=420)
 
         summary_string = "  {:0.3f}      {:0.3f}".format(so_action_probs[1], st_action_probs[1])
         summary_title1 = tk.Label(summary_frame, text="Average Attack Probability:", font="Verdana 12 bold", anchor=tk.W)
         summary_title2 = tk.Label(summary_frame, text=summary_string, font="Verdana 12", anchor=tk.W)
-        summary_title1.place(x=20, y=350)
-        summary_title2.place(x=240, y=350)
+        summary_title1.place(x=20, y=440)
+        summary_title2.place(x=240, y=440)
 
         summary_string = "  {:0.3f}      {:0.3f}".format(so_action_probs[2], st_action_probs[2])
         summary_title1 = tk.Label(summary_frame, text="Average Eat Probability:", font="Verdana 12 bold", anchor=tk.W)
         summary_title2 = tk.Label(summary_frame, text=summary_string, font="Verdana 12", anchor=tk.W)
-        summary_title1.place(x=20, y=370)
-        summary_title2.place(x=240, y=370)
+        summary_title1.place(x=20, y=460)
+        summary_title2.place(x=240, y=460)
 
         summary_string = "  {:0.3f}      {:0.3f}".format(so_action_probs[3], st_action_probs[3])
         summary_title1 = tk.Label(summary_frame, text="Average Procreate Probability:", font="Verdana 12 bold", anchor=tk.W)
         summary_title2 = tk.Label(summary_frame, text=summary_string, font="Verdana 12", anchor=tk.W)
-        summary_title1.place(x=20, y=390)
-        summary_title2.place(x=240, y=390)
+        summary_title1.place(x=20, y=480)
+        summary_title2.place(x=240, y=480)
 
         summary_string = "  {:0.3f}      {:0.3f}".format(so_action_probs[4], st_action_probs[4])
         summary_title1 = tk.Label(summary_frame, text="Average Turn Probability:", font="Verdana 12 bold", anchor=tk.W)
         summary_title2 = tk.Label(summary_frame, text=summary_string, font="Verdana 12", anchor=tk.W)
-        summary_title1.place(x=20, y=410)
-        summary_title2.place(x=240, y=410)
+        summary_title1.place(x=20, y=500)
+        summary_title2.place(x=240, y=500)
 
         summary_string = "  {:0.3f}      {:0.3f}".format(so_action_probs[5], st_action_probs[5])
         summary_title1 = tk.Label(summary_frame, text="Average Move Probability:", font="Verdana 12 bold", anchor=tk.W)
         summary_title2 = tk.Label(summary_frame, text=summary_string, font="Verdana 12", anchor=tk.W)
-        summary_title1.place(x=20, y=430)
-        summary_title2.place(x=240, y=430)
+        summary_title1.place(x=20, y=520)
+        summary_title2.place(x=240, y=520)
 
 
 ############################################################################################################
