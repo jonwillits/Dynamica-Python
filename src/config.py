@@ -9,8 +9,8 @@ class GlobalOptions:
 
 ############################################################################################################
 class World:
-    num_rows = 10  # rows x grid size-1 must be < window_height
-    num_columns = 10  # columns x grid size-1 must be < window_width
+    num_rows = 24  # rows x grid size-1 must be < window_height
+    num_columns = 34  # columns x grid size-1 must be < window_width
     grid_size = 32  # the width and height of each grid square (in pixels)
     appearance_size = 20  # this is the size of the appearance vector generated for each thing
 
