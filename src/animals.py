@@ -20,6 +20,7 @@ class Animal:
         self.kingdom = "Animal"  # this animal's kingdom type (ie plant or animal)
         self.species = None  # this animal's species type
         self.graphic_object = None  # this animal's graphic object, currently a python turtle object
+        self.dead_graphic_object = None
         self.id_number = the_world.entity_counter  # a unique id number
         self.the_world.entity_counter += 1
 
@@ -82,7 +83,7 @@ class Animal:
     def get_pregnant(self, father_genome):
         self.pregnant = 1
         self.baby_daddy_genome = father_genome
-        self.metabolism = config.Animal.pregnant_metabolism
+        self.metabolism = config.Animal.metabolism * config.Animal.pregnant_metabolism_multiplier
 
     ############################################################################################################
     def bear_child(self):
@@ -129,6 +130,7 @@ class Lion(Mammal):
         self.species = 'Lion'
         self.image_dict = {0: 'assets/images/Lion0.gif', 90: 'assets/images/Lion90.gif',
                            180: 'assets/images/Lion180.gif', 270: 'assets/images/Lion270.gif'}
+        self.dead_graphic_object = 'assets/images/dead_lion.gif'
         self.diet_dict = config.Lion.diet_dict
 
 
@@ -140,4 +142,5 @@ class Zebra(Mammal):
         self.species = 'Zebra'
         self.image_dict = {0: 'assets/images/Zebra0.gif', 90: 'assets/images/Zebra90.gif',
                            180: 'assets/images/Zebra180.gif', 270: 'assets/images/Zebra270.gif'}
+        self.dead_graphic_object = 'assets/images/dead_zebra.gif'
         self.diet_dict = config.Zebra.diet_dict

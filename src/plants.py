@@ -18,6 +18,7 @@ class Plant:
         self.the_world.entity_counter += 1
         self.quantity = 100
         self.appearance = None
+        self.age = 0
 
     ############################################################################################################
     def __repr__(self):
@@ -37,7 +38,8 @@ class Plant:
 
     ############################################################################################################
     def next_turn(self):
-        x = 0
+        self.age += 1
+
 
 ############################################################################################################
 ############################################################################################################
@@ -48,10 +50,11 @@ class Grass(Plant):
         self.species = 'Grass'
         self.appearance = np.random.randint(0, 2, config.World.appearance_size)
         self.appearance[0] = self.quantity/100
+        self.grow_rate = config.Grass.grow_rate
 
     ############################################################################################################
     def next_turn(self):
-        self.quantity += 5
+        self.quantity += self.grow_rate
         if self.quantity > 100:
             self.quantity = 100
         self.appearance[0] = self.quantity/100

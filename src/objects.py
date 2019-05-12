@@ -1,5 +1,6 @@
 import random
 import numpy as np
+from src import config
 
 
 ############################################################################################################
@@ -23,27 +24,36 @@ class WorldObject:
 ############################################################################################################
 class Carcass(WorldObject):
     ############################################################################################################
-    def __init__(self, object_type, image, appearance, appearance_diff, size=1):
+    def __init__(self, object_type, image, appearance, size, the_world):
         WorldObject.__init__(self)
         self.object_type = object_type
-        self.image = image
         self.quantity = 100 * size
         self.appearance = appearance
+        self.the_world = the_world
+        self.init_appearance()
+        self.id_number = the_world.entity_counter
+        self.graphic_object = image
+        self.decay_rate = config.Carcass.decay_rate
 
-        self.init_appearance(appearance_diff)
+        self.the_world.entity_counter += 1
 
     ############################################################################################################
-    def init_appearance(self, appearance_diff):
-        for i in range(len(self.appearance)):
-            choice = random.random(0, 1)
-            if choice < appearance_diff:
-                if self.appearance[i] == 0:
-                    self.appearance[i] = 1
-                else:
-                    self.appearance[i] = 0
+    def init_appearance(self):
+        if len(self.appearance) < 10:
+            num_dead_bits = 3
+        else:
+            num_dead_bits = 5
+
+        for i in range(num_dead_bits):
+            self.appearance[-i] = 0.5
 
     ############################################################################################################
     def next_turn(self):
-        self.quantity -= 5
+        self.quantity -= self.decay_rate
+        if self.quantity <= 0:
+            self.the_world.map[tuple(self.position)].object_list.remove(self)
+            self.the_world.object_list.remove(self)
+            self.the_world.object_counts_dict[self.object_type] -= 1
+
 
 

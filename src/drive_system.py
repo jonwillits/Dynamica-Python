@@ -57,8 +57,8 @@ class DriveSystem:
 
             if drive == 'Energy':
                 # metabolism and size effect how much energy things take
-                self.drive_value_array[i] += (self.animal.current_size * action_effect_dict[drive]
-                                              * self.animal.metabolism)/100
+                energy_cost = (self.animal.current_size * action_effect_dict[drive] * self.animal.metabolism)/100
+                self.drive_value_array[i] += energy_cost
             else:
                 self.drive_value_array[i] += action_effect_dict[drive]/100
 

@@ -2,6 +2,7 @@ from src import config
 from src import animals
 from src import plants
 from src import terrain
+from src import objects
 import random
 import sys
 import numpy as np
@@ -247,14 +248,15 @@ class World:
 
     ############################################################################################################
     def next_turn(self):
-
-        if len(self.animal_list):
+        if len(self.object_list):
             for world_object in self.object_list:
                 world_object.next_turn()
 
+        if len(self.plant_list):
             for plant in self.plant_list:
                 plant.next_turn()
 
+        if len(self.animal_list):
             for animal in self.animal_list:
                 # normal turn actions
                 animal.take_turn()
@@ -288,6 +290,7 @@ class World:
 
                 # deal with animal whose health is 0
                 if animal.drive_system.drive_value_array[animal.drive_system.drive_index_dict['Health']] <= 0:
+                    self.create_carcass(animal)
                     self.kill_animal(animal)
 
         self.calc_turn_summary()
@@ -302,14 +305,16 @@ class World:
 
     ############################################################################################################
     def print_summary(self):
+        for i in range(len(self.object_list)):
+            print("    ", self.object_list[i].object_type, self.object_list[i].id_number, self.object_list[i].quantity)
 
         output_header = "{:<5s} {:<14s}".format("Turn", "ID")
         output_header += "{:<9s} {:<7s} {:<5s}".format("Sex", "Age", "Size")
         output_header += " {:>3s},{:<3s} {:>4s} | ".format("X", "Y", "Dir")
         output_header += " {:<7s}  {:<7s}  {:<7s} | ".format("Health", "Energy", "Arousal")
-        output_header += "{:<6s} {:<6s} {:<6s} {:<6s} {:<6s} {:<6s}| ".format("Rest", "Attack", "Eat", "Procreate", "Turn", "Move")
+        output_header += " {:<6s}  {:<6s} {:<6s} {:<6s} {:<6s} {:<6s}".format("Rest", "Attack", "Eat", "Proc", "Turn", "Move")
         output_header += "{:>9s}".format("Choice")
-        output_header += " | {:>6s} {:>6s} {:>6s} {:>6s} {:>9s}".format("SpCost", "DpCost", "ApCost", "PpCost", "DrCost")
+        output_header += "| {:>6s} {:>6s} {:>6s} {:>6s} {:>9s}".format("SpCost", "DpCost", "ApCost", "PpCost", "DrCost")
         if len(self.animal_list) > 1 or self.current_turn % 10 == 0:
             print(output_header)
 
@@ -334,7 +339,7 @@ class World:
 
                 for i in range(animal.action_system.num_actions):
                     try:
-                        output_string += " {:<3.2f} ".format(animal.action_system.legal_action_prob_distribution[i])
+                        output_string += "  {:<3.2f} ".format(animal.action_system.legal_action_prob_distribution[i])
                     except ValueError as argument:
                         print('\n\n')
                         print(animal)
@@ -377,6 +382,20 @@ class World:
         self.animal_list.remove(animal)
         self.animal_species_counts_dict[animal.species] -= 1
         animal.position = None
+
+    ############################################################################################################
+    def create_carcass(self, animal):
+        object_type = animal.species+"_carcass"
+        animal_carcass = objects.Carcass(object_type, animal.dead_graphic_object,
+                                         animal.appearance, animal.current_size, self)
+        animal_carcass.position = animal.position
+
+        self.object_list.append(animal_carcass)
+        self.map[tuple(animal_carcass.position)].object_list.append(animal_carcass)
+        if object_type in self.object_counts_dict:
+            self.object_counts_dict[object_type] += 1
+        else:
+            self.object_counts_dict[object_type] = 1
 
     ############################################################################################################
     def legal_offspring_location(self, animal, location):

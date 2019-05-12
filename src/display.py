@@ -57,7 +57,8 @@ class Display:
         self.create_buttons()
 
         self.load_images()
-        self.draw_world()
+        self.draw_terrain()
+        self.draw_objects()
         self.draw_animals()
         self.update_summary_display()
 
@@ -181,7 +182,7 @@ class Display:
         return grid_x, grid_y
 
     ############################################################################################################
-    def draw_world(self):
+    def draw_terrain(self):
         for i in range(self.the_world.num_rows):
             for j in range(self.the_world.num_columns):
                 current_tile = self.the_world.map[(j, i)]
@@ -190,6 +191,7 @@ class Display:
 
     ############################################################################################################
     def update_summary_display(self):
+        # create the summary display frame
         summary_frame = tk.Frame(self.summary_canvas,
                                  width=self.summary_canvas_width-20,
                                  height=self.summary_canvas_height-20,
@@ -197,30 +199,53 @@ class Display:
                                  bg="white")
         summary_frame.place(x=10, y=10)
 
-        summary_title = tk.Label(summary_frame, text="Dynamica Summary", font="Verdana 16 bold", anchor=tk.W)
-        summary_title.place(x=10, y=10)
+        # create the summary display main title
+        summary_main_title = tk.Label(summary_frame, text="Dynamica Summary", font="Verdana 16 bold", anchor=tk.W)
+        summary_main_title.place(x=10, y=10)
 
-        summary_title = tk.Label(summary_frame, text="Plants", font="Verdana 12 bold", anchor=tk.W)
-        summary_title.place(x=10, y=50)
+        # create the plants display
+
+        # create the grass label
+        summary_plant_title = tk.Label(summary_frame, text="Plants", font="Verdana 12 bold", anchor=tk.W)
+        summary_plant_title.place(x=10, y=50)
+
+        # get and place the grass image
         self.grass_image = tk.PhotoImage(file='assets/images/plains.gif')
         plant_image_label = tk.Label(summary_frame, image=self.grass_image, anchor=tk.W)
         plant_image_label.place(x=30, y=80)
-        grass_data = self.the_world.turn_summary_dict['Plant']['Grass']
-        plant_text_string = "Grass     Tiles: {}    Qty: {:3.2f}%".format(grass_data[0], 100*(grass_data[1]/(grass_data[0]*100)))
+
+        # get and place the grass data, or fill in zeros if no grass
+        if 'Grass' in self.the_world.turn_summary_dict['Plant']:
+            grass_data = self.the_world.turn_summary_dict['Plant']['Grass']
+            plant_text_string = "Grass     Tiles: {}    Qty: {:3.2f}%".format(grass_data[0], 100 * (
+                        grass_data[1] / (grass_data[0] * 100)))
+        else:
+            plant_text_string = "Grass     Tiles: 0    Qty: 0"
         plant_text_label = tk.Label(summary_frame, text=plant_text_string, font="Verdana 10", anchor=tk.W)
         plant_text_label.place(x=70, y=90)
 
+        # create the animals display
         summary_title = tk.Label(summary_frame, text="Animals", font="Verdana 12 bold", anchor=tk.W)
         summary_title.place(x=10, y=150)
+
+        # get and place the zebra image
         self.zebra_image = tk.PhotoImage(file='assets/images/Zebra0.gif')
         zebra_image_label = tk.Label(summary_frame, image=self.zebra_image, anchor=tk.W)
         zebra_image_label.place(x=30, y=180)
-        zebra_data = self.the_world.turn_summary_dict['Animal']['Zebra']
-        qty = str("{:0.0f}".format(zebra_data[0]))
-        health = str("{:3.2f}".format(zebra_data[1]))
-        energy = str("{:3.2f}".format(zebra_data[2]))
-        arousal = str("{:3.2f}".format(zebra_data[3]))
-        zebra_text_string = "Zebra   Qty: {:5s}   Health: {:<7s}   Energy: {:<7s}    Arousal: {:<7s}".format(qty, health, energy, arousal)
+
+        if 'Zebra' in self.the_world.turn_summary_dict['Animal']:
+            zebra_data = self.the_world.turn_summary_dict['Animal']['Zebra']
+            qty = str("{:0.0f}".format(zebra_data[0]))
+            health = str("{:3.2f}".format(zebra_data[1]))
+            energy = str("{:3.2f}".format(zebra_data[2]))
+            arousal = str("{:3.2f}".format(zebra_data[3]))
+            zebra_text_string = "Zebra   Qty: {:5s}   Health: {:<7s}   Energy: {:<7s}    Arousal: {:<7s}".format(qty,
+                                                                                                                 health,
+                                                                                                                 energy,
+                                                                                                                 arousal)
+        else:
+            zebra_text_string = "Zebra   Qty: 0   Health: NA   Energy: NA    Arousal: NA"
+
         zebra_text_label = tk.Label(summary_frame, text=zebra_text_string, font="Verdana 10", anchor=tk.W)
         zebra_text_label.place(x=70, y=190)
         zebra_image_label.bind('<Double-Button-1>', self.animal_summary_on_double_click)
@@ -231,35 +256,14 @@ class Display:
         for animal in self.the_world.animal_list:
             x, y = self.get_screen_coordinates(animal.position[0], animal.position[1])
             image = animal.image_dict[animal.orientation]
-            self.main_canvas.create_image(x+4, y+4, anchor=tk.NW, image=self.image_dict[image])
-
-    ############################################################################################################
-    def show_tile_click_info(self, x, y):
-        grid_x, grid_y = self.get_grid_coordinates(x, y)
-        if 0 <= grid_x <= self.num_columns-1:
-            if 0 <= grid_y <= self.num_rows - 1:
-                if self.info_window is not None:
-                    self.info_window.destroy()
-                self.info_window = tk.Toplevel(self.root)
-                self.info_window_instance = GridInfoWindow(self.info_window, self.the_world, (grid_x, grid_y))
+            self.main_canvas.create_image(x+2, y+2, anchor=tk.NW, image=self.image_dict[image])
 
     ############################################################################################################
     def draw_objects(self):
-        pass
-        # for world_object in self.the_world.object_list:
-        #     x, y = self.get_screen_coordinates(world_object.position[0], world_object.position[1])
-        #
-        #     if len(self.the_world.map[x, y].animal_list) == 0:
-        #         if world_object.graphic_object is None:
-        #             object_turtle = RawTurtle(self.wn, visible=False)
-        #             object_turtle.shape(world_object.image)
-        #             object_turtle.penup()
-        #             world_object.graphic_object = object_turtle
-        #             world_object.graphic_object.goto(x, y)
-        #             world_object.graphic_object.showturtle()
-        #         else:
-        #             world_object.graphic_object.goto(x, y)
-        #     self.wn.update()
+        for world_object in self.the_world.object_list:
+            x, y = self.get_screen_coordinates(world_object.position[0], world_object.position[1])
+            image = world_object.graphic_object
+            self.main_canvas.create_image(x+6, y+6, anchor=tk.NW, image=self.image_dict[image])
 
     ############################################################################################################
     def run_game(self):
@@ -284,7 +288,8 @@ class Display:
         self.the_world.next_turn()
 
         self.main_canvas.delete("all")
-        self.draw_world()
+        self.draw_terrain()
+        self.draw_objects()
         self.draw_animals()
         self.update_summary_display()
         self.root.update()
@@ -299,6 +304,16 @@ class Display:
         if self.running:
             self.run_game()
         sys.exit(1)
+
+    ############################################################################################################
+    def show_tile_click_info(self, x, y):
+        grid_x, grid_y = self.get_grid_coordinates(x, y)
+        if 0 <= grid_x <= self.num_columns - 1:
+            if 0 <= grid_y <= self.num_rows - 1:
+                if self.info_window is not None:
+                    self.info_window.destroy()
+                self.info_window = tk.Toplevel(self.root)
+                self.info_window_instance = GridInfoWindow(self.info_window, self.the_world, (grid_x, grid_y))
 
 
 ############################################################################################################
@@ -595,6 +610,15 @@ class GridInfoWindow:
             label_string = "Orientation: {}".format(animal.orientation)
             animal_text_label = tk.Label(animal_frame, text=label_string, font="Courier 11", anchor=tk.W)
             animal_text_label.place(x=30, y=115)
+            label_string = "Health: {:0.3f}".format(animal.drive_system.drive_value_array[0])
+            animal_text_label = tk.Label(animal_frame, text=label_string, font="Courier 11", anchor=tk.W)
+            animal_text_label.place(x=30, y=140)
+            label_string = "Energy: {:0.3f}".format(animal.drive_system.drive_value_array[1])
+            animal_text_label = tk.Label(animal_frame, text=label_string, font="Courier 11", anchor=tk.W)
+            animal_text_label.place(x=30, y=155)
+            label_string = "Arousal: {:0.3f}".format(animal.drive_system.drive_value_array[2])
+            animal_text_label = tk.Label(animal_frame, text=label_string, font="Courier 11", anchor=tk.W)
+            animal_text_label.place(x=30, y=170)
 
 
             label_string = "Neural Network Properties"
