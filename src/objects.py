@@ -24,9 +24,9 @@ class WorldObject:
 ############################################################################################################
 class Carcass(WorldObject):
     ############################################################################################################
-    def __init__(self, object_type, image, appearance, size, the_world):
+    def __init__(self, kind, image, appearance, size, the_world):
         WorldObject.__init__(self)
-        self.object_type = object_type
+        self.kind = kind
         self.quantity = 100 * size
         self.appearance = appearance
         self.the_world = the_world
@@ -52,8 +52,9 @@ class Carcass(WorldObject):
         self.quantity -= self.decay_rate
         if self.quantity <= 0:
             self.the_world.map[tuple(self.position)].object_list.remove(self)
+            self.the_world.object_counts_dict[self.kind] -= 1
             self.the_world.object_list.remove(self)
-            self.the_world.object_counts_dict[self.object_type] -= 1
+
 
 
 

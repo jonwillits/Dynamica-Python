@@ -236,6 +236,35 @@ class NervousSystem:
         self.action_outputs = self.neural_output_state[self.a_indexes[0]:self.a_indexes[1] + 1]
         self.action_argument_outputs = self.neural_output_state[self.aa_indexes[0]:self.aa_indexes[1] + 1]
 
+        if config.Debug.nervous_system:
+            print("\nSensory State:")
+            print("    Position & Orientation:", self.animal.position, self.animal.orientation)
+            print("    Sensory Matrix:", self.sensory_matrix.shape)
+            for i in range(self.sensory_matrix.shape[0]):
+                print("    Tile", self.view_list[i])
+                print("        terrain:", np.array2string(self.sensory_matrix[i, 0, :],
+                                                          precision=2,
+                                                          floatmode='maxprec',
+                                                          separator=' ',
+                                                          suppress_small=True))
+                print("        animal:", np.array2string(self.sensory_matrix[i, 1, :],
+                                                         precision=2,
+                                                         floatmode='maxprec',
+                                                         separator=' ',
+                                                         suppress_small=True))
+                print("        plant:", np.array2string(self.sensory_matrix[i, 2, :],
+                                                        precision=2,
+                                                        floatmode='maxprec',
+                                                        separator=' ',
+                                                        suppress_small=True))
+                print("        object:", np.array2string(self.sensory_matrix[i, 3, :],
+                                                         precision=2,
+                                                         floatmode='maxprec',
+                                                         separator=' ',
+                                                         suppress_small=True))
+            print("    Sensory Array:", self.sensory_array.shape)
+            print("\n")
+
     ############################################################################################################
     def update_neural_weights(self):
         # these are the outputs of the previous feedforward

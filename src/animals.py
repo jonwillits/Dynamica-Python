@@ -36,7 +36,8 @@ class Animal:
 
         ############################################################################################################
         self.attack_strength = config.Animal.attack_strength  # the force modifier this animal gets when attacking\
-        self.metabolism = config.Animal.metabolism
+        self.species_metabolism_multiplier = 1
+        self.metabolism = config.Animal.metabolism * self.species_metabolism_multiplier
         self.allowed_terrain_dict = config.Animal.allowed_terrain_dict
         self.action_drive_change_dict = config.Animal.action_drive_change_dict
         self.diet_dict = None
@@ -83,7 +84,8 @@ class Animal:
     def get_pregnant(self, father_genome):
         self.pregnant = 1
         self.baby_daddy_genome = father_genome
-        self.metabolism = config.Animal.metabolism * config.Animal.pregnant_metabolism_multiplier
+        self.metabolism = config.Animal.metabolism * self.species_metabolism_multiplier * \
+                          config.Animal.pregnant_metabolism_multiplier
 
     ############################################################################################################
     def bear_child(self):
@@ -92,7 +94,7 @@ class Animal:
         self.fetus.age = 0
         self.pregnant = 0
         self.fetus = None
-        self.metabolism = config.Animal.metabolism
+        self.metabolism = config.Animal.metabolism * self.species_metabolism_multiplier
 
     ############################################################################################################
     def update_appearance(self, appearance=None):
@@ -132,6 +134,8 @@ class Lion(Mammal):
                            180: 'assets/images/Lion180.gif', 270: 'assets/images/Lion270.gif'}
         self.dead_graphic_object = 'assets/images/dead_lion.gif'
         self.diet_dict = config.Lion.diet_dict
+        self.species_metabolism_multiplier = config.Lion.species_metabolism_multiplier
+        self.metabolism = config.Animal.metabolism * self.species_metabolism_multiplier
 
 
 ############################################################################################################
@@ -144,3 +148,5 @@ class Zebra(Mammal):
                            180: 'assets/images/Zebra180.gif', 270: 'assets/images/Zebra270.gif'}
         self.dead_graphic_object = 'assets/images/dead_zebra.gif'
         self.diet_dict = config.Zebra.diet_dict
+        self.species_metabolism_multiplier = config.Zebra.species_metabolism_multiplier
+        self.metabolism = config.Animal.metabolism * self.species_metabolism_multiplier

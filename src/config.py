@@ -1,6 +1,6 @@
 ############################################################################################################
 class GlobalOptions:
-    verbose = False
+    debug = False
     random_seed = None
     summary_freq = 1
     window_height = 800
@@ -9,8 +9,8 @@ class GlobalOptions:
 
 ############################################################################################################
 class World:
-    num_rows = 20  # rows x grid size-1 must be < window_height
-    num_columns = 20  # columns x grid size-1 must be < window_width
+    num_rows = 4  # rows x grid size-1 must be < window_height
+    num_columns = 3  # columns x grid size-1 must be < window_width
     grid_size = 32  # the width and height of each grid square (in pixels)
     appearance_size = 20  # this is the size of the appearance vector generated for each thing
 
@@ -18,7 +18,7 @@ class World:
 ############################################################################################################
 class Terrain:
     num_types = 3  # all edge tiles are made lakes, all interior tiles are made desert
-    plains_prob = .7  # then each grid tile has this chance of being made into plains
+    plains_prob = .0  # then each grid tile has this chance of being made into plains
     lake_prob = .0  # then each grid tile has this chance of being made into lake
     appearance_variance = 0.05  # the probability each feature of a terrain tile's appearance varies from its prototype
 
@@ -60,6 +60,8 @@ class Animal:
 
     drive_init_dict = {'Health': 1.0, 'Energy': 1.0, 'Arousal': 0.0}
 
+    action_noise = 0.01
+
     action_drive_change_dict = {'Rest':      {'Health': 1.0, 'Energy': -0.01, 'Arousal': 0.0},
                                 'Attack':    {'Health': 0.0, 'Energy': -0.10, 'Arousal': 0.0},
                                 'Eat':       {'Health': 0.0, 'Energy': -0.03, 'Arousal': 0.0},
@@ -98,14 +100,18 @@ class Animal:
 
 ############################################################################################################
 class Lion:
-    start_number = 0
-    diet_dict = {'Meat': True, 'Plants': False}
+    start_number = 1
+    diet_dict = {'Meat': 2,
+                 'Plants': 0}
+    species_metabolism_multiplier = 1
 
 
 ############################################################################################################
 class Zebra:
-    start_number = 20
-    diet_dict = {'Meat': False, 'Plants': True}
+    start_number = 1
+    diet_dict = {'Meat': 0,
+                 'Plants': 1}
+    species_metabolism_multiplier = 1
 
 
 ############################################################################################################
@@ -116,3 +122,10 @@ class Grass:
 ############################################################################################################
 class Carcass:
     decay_rate = 1
+
+
+############################################################################################################
+class Debug:
+    drive_system = False
+    action_system = False
+    nervous_system = False

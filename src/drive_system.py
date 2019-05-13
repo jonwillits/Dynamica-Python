@@ -45,7 +45,8 @@ class DriveSystem:
             i += 1
 
     ############################################################################################################
-    def update_drives(self, action_choice):
+    def update_drives(self, action_choice, debug=False):
+
         self.last_drive_value_array = np.copy(self.drive_value_array)
 
         # the action taken, so we can enact its effects
@@ -75,5 +76,12 @@ class DriveSystem:
                 self.drive_value_array[i] = 0
             if self.drive_value_array[i] > 1:
                 self.drive_value_array[i] = 1
+
+        if config.Debug.drive_system:
+            print("\nUpdate Drives")
+            print("    Start Drives", self.last_drive_value_array)
+            print("    Action Choice & Effect", action_choice, action_effect_dict)
+            print("    End Drives", self.drive_value_array, '\n')
+
 
 

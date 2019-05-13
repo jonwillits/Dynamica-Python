@@ -178,11 +178,13 @@ class World:
 
         for species in self.animal_species_counts_dict:
             self.turn_summary_dict['Animal'][species] = [self.animal_species_counts_dict[species], 0, 0, 0]
-            for animal in self.animal_list:
-                self.turn_summary_dict['Animal'][animal.species][1] += animal.drive_system.drive_value_array[0]
-                self.turn_summary_dict['Animal'][animal.species][2] += animal.drive_system.drive_value_array[1]
-                self.turn_summary_dict['Animal'][animal.species][3] += animal.drive_system.drive_value_array[2]
 
+        for animal in self.animal_list:
+            self.turn_summary_dict['Animal'][animal.species][1] += animal.drive_system.drive_value_array[0]
+            self.turn_summary_dict['Animal'][animal.species][2] += animal.drive_system.drive_value_array[1]
+            self.turn_summary_dict['Animal'][animal.species][3] += animal.drive_system.drive_value_array[2]
+
+        for species in self.animal_species_counts_dict:
             if self.turn_summary_dict['Animal'][species][0]:
                 self.turn_summary_dict['Animal'][species][1] /= self.turn_summary_dict['Animal'][species][0]
                 self.turn_summary_dict['Animal'][species][2] /= self.turn_summary_dict['Animal'][species][0]
@@ -305,8 +307,6 @@ class World:
 
     ############################################################################################################
     def print_summary(self):
-        for i in range(len(self.object_list)):
-            print("    ", self.object_list[i].object_type, self.object_list[i].id_number, self.object_list[i].quantity)
 
         output_header = "{:<5s} {:<14s}".format("Turn", "ID")
         output_header += "{:<9s} {:<7s} {:<5s}".format("Sex", "Age", "Size")
@@ -385,7 +385,7 @@ class World:
 
     ############################################################################################################
     def create_carcass(self, animal):
-        object_type = animal.species+"_carcass"
+        object_type = "Meat"
         animal_carcass = objects.Carcass(object_type, animal.dead_graphic_object,
                                          animal.appearance, animal.current_size, self)
         animal_carcass.position = animal.position
