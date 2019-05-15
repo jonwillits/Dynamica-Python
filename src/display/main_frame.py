@@ -10,6 +10,7 @@ class MainFrame(tk.Frame):
         self.display = display
         self.tile_info_window = None
         self.tile_info_window_instance = None
+        self.terrain_image_dict = {}
 
         self.main_canvas = tk.Canvas(self,
                                      height=display.main_canvas_height, width=display.main_canvas_width,
@@ -74,6 +75,7 @@ class MainFrame(tk.Frame):
             for j in range(self.display.the_world.num_columns):
                 current_tile = self.display.the_world.map[(j, i)]
                 x, y = self.get_screen_coordinates(j, i)
+
                 self.main_canvas.create_image(x, y, anchor=tk.NW, image=self.display.image_dict[current_tile.image])
 
     ############################################################################################################
