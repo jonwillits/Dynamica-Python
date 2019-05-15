@@ -4,12 +4,11 @@ from src.animals.species import lion, zebra
 from src.plants.species import grass
 from src.objects import carcass
 import random
+import time
 import sys
 import numpy as np
 
 
-############################################################################################################
-############################################################################################################
 class World:
     def __init__(self):
 
@@ -51,6 +50,8 @@ class World:
         self.generate_objects()
         self.calc_turn_summary()
         self.calc_initial_animal_summaries()
+
+        self.world_timers_array = np.zeros([12])
 
         if config.Animal.output_data:
             self.animal_summary_filename = "output/" + str(self.random_seed) + "_animals_n" + str(len(self.animal_list)) + ".txt"
@@ -250,13 +251,18 @@ class World:
 
     ############################################################################################################
     def next_turn(self):
+
+        start_time = time.time()
         if len(self.object_list):
             for world_object in self.object_list:
                 world_object.next_turn()
+        self.world_timers_array[0] += time.time() - start_time
 
+        start_time = time.time()
         if len(self.plant_list):
             for plant in self.plant_list:
                 plant.next_turn()
+        self.world_timers_array[1] += time.time() - start_time
 
         if len(self.animal_list):
             for animal in self.animal_list:
@@ -264,6 +270,7 @@ class World:
                 animal.take_turn()
 
                 # deal with pregnancy related matters
+                start_time = time.time()
                 if animal.pregnant:
                     if animal.pregnant == 1:
 
@@ -289,13 +296,18 @@ class World:
                                 break
                     else:
                         animal.pregnant += 1
+                self.world_timers_array[9] += time.time() - start_time
 
                 # deal with animal whose health is 0
+                start_time = time.time()
                 if animal.drive_system.drive_value_array[animal.drive_system.drive_index_dict['Health']] <= 0:
                     self.create_carcass(animal)
                     self.kill_animal(animal)
+                self.world_timers_array[10] += time.time() - start_time
 
+        start_time = time.time()
         self.calc_turn_summary()
+        self.world_timers_array[11] += time.time() - start_time
 
         if config.GlobalOptions.summary_freq:
             if self.current_turn % config.GlobalOptions.summary_freq == 0:
