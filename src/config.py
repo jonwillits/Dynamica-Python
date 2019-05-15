@@ -72,7 +72,7 @@ class Animal:
 
     # num nucleotides in gene, how converted to value
     trait_gene_size_dict = {'Sex':                      (1, 'binary'),
-                            'Max Size':                 (4, 'sum'),
+                            'Max Size':                 (9, 'sum'),
                             'Diet':                     (20, 'mean'),
                             'Teeth':                    (20, 'mean'),
                             'Breathes':                 (10, 'mean'),
