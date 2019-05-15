@@ -1,4 +1,4 @@
-from src import nervous_system
+from src.animals import nervous_system
 import numpy as np
 np.set_printoptions(precision=3, suppress=True)
 

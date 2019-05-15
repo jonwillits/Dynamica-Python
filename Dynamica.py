@@ -1,4 +1,4 @@
-from src import display
+from src.display import display
 from src import world
 
 

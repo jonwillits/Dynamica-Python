@@ -1,8 +1,8 @@
 from src import config
-from src import animals
-from src import plants
-from src import terrain
-from src import objects
+from src.terrain.terrain_types import lake, plains, desert
+from src.animals.species import lion, zebra
+from src.plants.species import grass
+from src.objects import carcass
 import random
 import sys
 import numpy as np
@@ -81,22 +81,22 @@ class World:
     ############################################################################################################
     def choose_tile_type(self, i, j):
         if (i == 0) or (i == self.num_rows - 1) or (j == 0) or (j == self.num_columns - 1):
-            new_tile = terrain.Lake(j, i)
+            new_tile = lake.Lake(j, i)
             new_tile.change_appearance(self.appearance_dict['Lake'])
             self.water_size += 1
         else:
             lake_value = random.uniform(0, 1)
             if lake_value < config.Terrain.lake_prob:
-                new_tile = terrain.Lake(j, i)
+                new_tile = lake.Lake(j, i)
                 new_tile.change_appearance(self.appearance_dict['Lake'])
                 self.water_size += 1
             else:
                 plains_value = random.uniform(0, 1)
                 if plains_value < config.Terrain.plains_prob:
-                    new_tile = terrain.Plains(j, i)
+                    new_tile = plains.Plains(j, i)
                     new_tile.change_appearance(self.appearance_dict['Plains'])
                 else:
-                    new_tile = terrain.Desert(j, i)
+                    new_tile = desert.Desert(j, i)
                     new_tile.change_appearance(self.appearance_dict['Desert'])
 
         return new_tile
@@ -107,7 +107,7 @@ class World:
         for i in range(self.num_rows):
             for j in range(self.num_columns):
                 if self.map[(j, i)].terrain_type == 'Plains':
-                    new_grass = plants.Grass(self)
+                    new_grass = grass.Grass(self)
                     new_grass.change_appearance(self.appearance_dict['Grass'])
                     self.map[(j, i)].plant_list.append(new_grass)
                     self.plant_list.append(new_grass)
@@ -121,10 +121,10 @@ class World:
     def generate_animals(self):
 
         for i in range(config.Lion.start_number):
-            self.animal_list.append(animals.Lion(self, None, None))
+            self.animal_list.append(lion.Lion(self, None, None))
 
         for i in range(config.Zebra.start_number):
-            self.animal_list.append(animals.Zebra(self, None, None))
+            self.animal_list.append(zebra.Zebra(self, None, None))
 
         if len(self.animal_list) > self.land_size:
             print("ERROR: Number of animals is > the number of land tiles")
@@ -268,9 +268,9 @@ class World:
                     if animal.pregnant == 1:
 
                         if animal.species == 'Zebra':
-                            animal.fetus = animals.Zebra(self, animal.genome, animal.baby_daddy_genome)
+                            animal.fetus = zebra.Zebra(self, animal.genome, animal.baby_daddy_genome)
                         elif animal.species == 'Lion':
-                            animal.fetus = animals.Lion(self, animal.genome, animal.baby_daddy_genome)
+                            animal.fetus = lion.Lion(self, animal.genome, animal.baby_daddy_genome)
 
                     if animal.pregnant >= config.Animal.gestation_rate:
 
@@ -386,8 +386,8 @@ class World:
     ############################################################################################################
     def create_carcass(self, animal):
         object_type = "Meat"
-        animal_carcass = objects.Carcass(object_type, animal.dead_graphic_object,
-                                         animal.appearance, animal.current_size, self)
+        animal_carcass = carcass.Carcass(object_type, animal.dead_graphic_object,
+                                              animal.appearance, animal.current_size, self)
         animal_carcass.position = animal.position
 
         self.object_list.append(animal_carcass)

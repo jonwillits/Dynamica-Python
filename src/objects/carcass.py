@@ -1,31 +1,11 @@
-import random
-import numpy as np
+from src.objects import world_object
 from src import config
 
 
-############################################################################################################
-############################################################################################################
-class WorldObject:
-    ############################################################################################################
-    def __init__(self):
-        self.position = [None, None]
-        self.object_type = None
-        self.graphic_object = None
-        self.image = None
-        self.appearance = None
-        self.quantity = None
-
-    ############################################################################################################
-    def next_turn(self):
-        pass
-
-
-############################################################################################################
-############################################################################################################
-class Carcass(WorldObject):
+class Carcass(world_object.WorldObject):
     ############################################################################################################
     def __init__(self, kind, image, appearance, size, the_world):
-        WorldObject.__init__(self)
+        world_object.WorldObject.__init__(self)
         self.kind = kind
         self.quantity = 100 * size
         self.appearance = appearance
@@ -54,7 +34,3 @@ class Carcass(WorldObject):
             self.the_world.map[tuple(self.position)].object_list.remove(self)
             self.the_world.object_counts_dict[self.kind] -= 1
             self.the_world.object_list.remove(self)
-
-
-
-

@@ -1,20 +1,12 @@
 import random
 import numpy as np
 from src import config
-from src import genome
-from src import phenotype
-from src import drive_system
-from src import action_system
-from src import nervous_system
+from src.animals import phenotype, drive_system, nervous_system, action_system, genome
 
 
-############################################################################################################
-############################################################################################################
 class Animal:
-
     ############################################################################################################
     def __init__(self, the_world, mother_genome, father_genome):
-
         ############################################################################################################
         self.the_world = the_world  # a reference to the world data structure
         self.kingdom = "Animal"  # this animal's kingdom type (ie plant or animal)
@@ -115,38 +107,3 @@ class Animal:
 
         self.appearance = self.phenotype.trait_value_dict['Appearance']
         self.appearance[0] = self.current_size / 5
-
-
-############################################################################################################
-############################################################################################################
-class Mammal(Animal):
-    def __init__(self, animal_id, mother_genome, father_genome):
-        Animal.__init__(self, animal_id, mother_genome, father_genome)
-
-
-############################################################################################################
-############################################################################################################
-class Lion(Mammal):
-    def __init__(self, animal_id, mother_genome, father_genome):
-        Mammal.__init__(self, animal_id, mother_genome, father_genome)
-        self.species = 'Lion'
-        self.image_dict = {0: 'assets/images/Lion0.gif', 90: 'assets/images/Lion90.gif',
-                           180: 'assets/images/Lion180.gif', 270: 'assets/images/Lion270.gif'}
-        self.dead_graphic_object = 'assets/images/dead_lion.gif'
-        self.diet_dict = config.Lion.diet_dict
-        self.species_metabolism_multiplier = config.Lion.species_metabolism_multiplier
-        self.metabolism = config.Animal.metabolism * self.species_metabolism_multiplier
-
-
-############################################################################################################
-############################################################################################################
-class Zebra(Mammal):
-    def __init__(self, animal_id, mother_genome, father_genome):
-        Mammal.__init__(self, animal_id, mother_genome, father_genome)
-        self.species = 'Zebra'
-        self.image_dict = {0: 'assets/images/Zebra0.gif', 90: 'assets/images/Zebra90.gif',
-                           180: 'assets/images/Zebra180.gif', 270: 'assets/images/Zebra270.gif'}
-        self.dead_graphic_object = 'assets/images/dead_zebra.gif'
-        self.diet_dict = config.Zebra.diet_dict
-        self.species_metabolism_multiplier = config.Zebra.species_metabolism_multiplier
-        self.metabolism = config.Animal.metabolism * self.species_metabolism_multiplier
