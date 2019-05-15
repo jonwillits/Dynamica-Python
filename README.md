@@ -78,7 +78,6 @@ There are a large number of parameters that can be modified in src/config.py. Ma
 
 ## Coming Soon
 <ul>
-<li>Right now, the only animals you can play with are the nice herbivorous zebras. We are working on adding the carnivorous lions to the mix.
 <li>Performance issues. Everything was coded to be super transparent, and by a scientist, not a professional python programmer. Thus you will notice that with large populations, or with long simulations, speed really craters. This will be improved as we move out of alpha stage. 
 <li>Load/save simulation. Obviously it would be useful to be able to do this and we need this functionality.
 <li>More information diplays and graphs are coming to better understand what is happening in the simulation. But do remember  that you can double click on an an animal in the main window, or on the species in the summary display, and get more information on individuals or on the population.
