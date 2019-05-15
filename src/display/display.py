@@ -122,7 +122,6 @@ class Display:
 
         start_time = time.time()
         self.main_frame.main_canvas.delete("all")
-        self.summary_frame.summary_canvas.delete("all")
         self.display_timers_array[1] += time.time() - start_time
 
         start_time = time.time()
@@ -145,25 +144,26 @@ class Display:
         self.root.update()
         self.display_timers_array[6] += time.time() - start_time
 
-        if self.turn % 100 == 0:
-            print("turn    WLD    obj    pla    ff1    act    dri    ff2    unn    grw    uap    pre    die    sum   | "
-                  "DIS    wld    del    ter    obj    ani    sum    roo")
-        if self.turn % 10 == 0:
-            output_string = "{:5s}".format(str(self.turn))
-            output_string += "  {:0.3f}".format(self.the_world.world_timers_array.sum())
-            for timer in self.the_world.world_timers_array:
-                output_string += "  {:0.3f}".format(timer)
-            output_string += " |"
-            output_string += "  {:0.3f}".format(self.display_timers_array.sum())
-            for timer in self.display_timers_array:
-                output_string += "  {:0.3f}".format(timer)
-            print(output_string)
-            self.the_world.world_timers_array = np.zeros([12])
-            self.display_timers_array = np.zeros([7])
+        if config.GlobalOptions.timing_freq:
+            if self.turn % 100 == 0:
+                print("turn    WLD    obj    pla    ff1    act    dri    ff2    unn    grw    uap    pre    die    sum   | "
+                      "DIS    wld    del    ter    obj    ani    sum    roo")
+            if self.turn % config.GlobalOptions.timing_freq == 0:
+                output_string = "{:5s}".format(str(self.turn))
+                output_string += "  {:0.3f}".format(self.the_world.world_timers_array.sum())
+                for timer in self.the_world.world_timers_array:
+                    output_string += "  {:0.3f}".format(timer)
+                output_string += " |"
+                output_string += "  {:0.3f}".format(self.display_timers_array.sum())
+                for timer in self.display_timers_array:
+                    output_string += "  {:0.3f}".format(timer)
+                print(output_string)
+                self.the_world.world_timers_array = np.zeros([12])
+                self.display_timers_array = np.zeros([7])
 
-            self.timer_output_file = open("output/timers.txt", "a")
-            self.timer_output_file.write(output_string + "\n")
-            self.timer_output_file.close()
+                self.timer_output_file = open("output/timers.txt", "a")
+                self.timer_output_file.write(output_string + "\n")
+                self.timer_output_file.close()
 
     ############################################################################################################
     def save_game(self):

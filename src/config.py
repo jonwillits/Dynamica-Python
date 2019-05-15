@@ -2,7 +2,8 @@
 class GlobalOptions:
     debug = False
     random_seed = None
-    summary_freq = 0
+    summary_freq = 1
+    timing_freq = 0
     window_height = 800
     window_width = 1600
 
@@ -71,7 +72,7 @@ class Animal:
 
     # num nucleotides in gene, how converted to value
     trait_gene_size_dict = {'Sex':                      (1, 'binary'),
-                            'Max Size':                 (5, 'sum'),
+                            'Max Size':                 (4, 'sum'),
                             'Diet':                     (20, 'mean'),
                             'Teeth':                    (20, 'mean'),
                             'Breathes':                 (10, 'mean'),
