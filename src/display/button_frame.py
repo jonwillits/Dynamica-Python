@@ -1,11 +1,14 @@
 import tkinter as tk
 
 
-class ButtonCanvas(tk.Canvas):
+class ButtonFrame(tk.Frame):
     def __init__(self, display):
-        tk.Canvas.__init__(self, display.root,
-                           width=display.button_canvas_width, height=display.button_canvas_height,
-                           bd=0, highlightthickness=0)
+        super().__init__()
+
+        self.button_canvas = tk.Canvas(self,
+                                       width=display.button_canvas_width, height=display.button_canvas_height,
+                                       bd=0, highlightthickness=0)
+        self.button_canvas.grid(row=0, column=0)
 
         self.display = display
 
@@ -19,24 +22,25 @@ class ButtonCanvas(tk.Canvas):
 
         self.create_buttons()
 
+    ############################################################################################################
     def create_buttons(self):
 
-        self.next_button = tk.Button(self, text="Next", fg="black",
+        self.next_button = tk.Button(self.button_canvas, text="Next", fg="black",
                                      height=self.button_height, width=self.button_width,
                                      command=self.display.next_turn)
         self.next_button.grid(row=0, column=0, sticky=tk.W)
 
-        self.run_button = tk.Button(self, text="Run", fg="black",
+        self.run_button = tk.Button(self.button_canvas, text="Run", fg="black",
                                     height=self.button_height, width=self.button_width,
                                     command=self.display.run_game)
         self.run_button.grid(row=0, column=1, sticky=tk.W)
 
-        self.save_button = tk.Button(self, text="Save", fg="black",
+        self.save_button = tk.Button(self.button_canvas, text="Save", fg="black",
                                      height=self.button_height, width=self.button_width,
                                      command=self.display.save_game)
         self.save_button.grid(row=0, column=2, sticky=tk.W)
 
-        self.quit_button = tk.Button(self, text="Quit", fg="black",
+        self.quit_button = tk.Button(self.button_canvas, text="Quit", fg="black",
                                      height=self.button_height, width=self.button_width,
                                      command=self.display.quit_game)
         self.quit_button.grid(row=0, column=3, sticky=tk.E)

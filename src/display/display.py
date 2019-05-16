@@ -2,7 +2,7 @@ import tkinter as tk
 import os
 import sys
 from src import config
-from src.display import button_canvas, summary_frame, main_frame
+from src.display import button_frame, summary_frame, main_frame
 import time
 import numpy as np
 
@@ -39,7 +39,7 @@ class Display:
         self.tile_info_window = None
         self.tile_info_window_instance = None
 
-        self.button_canvas = None
+        self.button_frame = None
         self.button_canvas_height = 20
         self.button_canvas_width = self.root_width
 
@@ -84,8 +84,8 @@ class Display:
 
     ############################################################################################################
     def create_buttons(self):
-        self.button_canvas = button_canvas.ButtonCanvas(self)
-        self.button_canvas.grid(row=1, column=0, columnspan=2, padx=0, pady=0, ipadx=0, ipady=0)
+        self.button_frame = button_frame.ButtonFrame(self)
+        self.button_frame.grid(row=1, column=0, columnspan=2, padx=0, pady=0, ipadx=0, ipady=0)
 
     ############################################################################################################
     def load_images(self):
@@ -102,10 +102,10 @@ class Display:
     def run_game(self):
         if self.running:
             self.running = False
-            self.button_canvas.run_button.config(text="Run")
+            self.button_frame.run_button.config(text="Run")
         else:
             self.running = True
-            self.button_canvas.run_button.config(text="Pause")
+            self.button_frame.run_button.config(text="Pause")
 
         while self.running:
             self.next_turn()

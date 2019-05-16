@@ -5,8 +5,7 @@ from src.display import species_info_window
 class SummaryFrame(tk.Frame):
     ############################################################################################################
     def __init__(self, display):
-        tk.Frame.__init__(self,
-                           )
+        tk.Frame.__init__(self)
 
         self.summary_canvas = tk.Canvas(self,
                                         width=display.summary_canvas_width, height=display.summary_canvas_height,
@@ -83,8 +82,9 @@ class SummaryFrame(tk.Frame):
 
         self.zebra_text_label = tk.Label(self.summary_canvas, text=zebra_text_string, font="Verdana 10", anchor=tk.W)
         self.zebra_text_label.place(x=70, y=190)
-        self.zebra_image_label.bind('<Double-Button-1>', self.animal_summary_on_double_click)
-        self.zebra_text_label.bind('<Double-Button-1>', self.animal_summary_on_double_click)
+
+        self.zebra_image_label.bind('<Double-Button-1>', self.animal_summary_on_double_click('Zebra'))
+        self.zebra_text_label.bind('<Double-Button-1>', self.animal_summary_on_double_click('Zebra'))
 
         # create the lion display
         # get and place the zebra image
@@ -107,8 +107,9 @@ class SummaryFrame(tk.Frame):
 
         self.lion_text_label = tk.Label(self.summary_canvas, text=lion_text_string, font="Verdana 10", anchor=tk.W)
         self.lion_text_label.place(x=70, y=230)
-        self.lion_text_label.bind('<Double-Button-1>', self.animal_summary_on_double_click)
-        self.lion_text_label.bind('<Double-Button-1>', self.animal_summary_on_double_click)
+
+        self.lion_image_label.bind('<Double-Button-1>', self.animal_summary_on_double_click('Lion'))
+        self.lion_text_label.bind('<Double-Button-1>', self.animal_summary_on_double_click('Lion'))
 
     ############################################################################################################
     def update_summary_display(self):
@@ -198,9 +199,9 @@ class SummaryFrame(tk.Frame):
         self.lion_text_label.bind('<Double-Button-1>', self.animal_summary_on_double_click)
 
     ############################################################################################################
-    def animal_summary_on_double_click(self, event):
-        print("Species click event", event)
-        species = 'Zebra'
+    def animal_summary_on_double_click(self, species):
+        print("Species click event", species)
+        #species = 'Zebra'
         if self.display.species_summary_window is not None:
             self.display.species_summary_window.destroy()
         self.display.species_summary_window = tk.Toplevel(self.display.root)
