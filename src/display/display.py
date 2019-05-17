@@ -137,6 +137,7 @@ class Display:
         self.display_timers_array[4] += time.time() - start_time
 
         start_time = time.time()
+        self.summary_frame.clear_summary_display()
         self.summary_frame.update_summary_display()
         self.display_timers_array[5] += time.time() - start_time
 
