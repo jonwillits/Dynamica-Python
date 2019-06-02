@@ -65,17 +65,23 @@ class ActionSystem:
 
     ############################################################################################################
     def get_legal_action_probabilities(self, action_outputs=None):
+        noise = self.animal.phenotype.trait_value_dict['Action Noise']
+
         if action_outputs is None:
-            a_act = self.animal.nervous_system.action_outputs + config.Animal.action_noise
+            a_act = self.animal.nervous_system.action_outputs + noise
         else:
-            a_act = action_outputs + config.Animal.action_noise
+            a_act = action_outputs + noise
+
+        for i in range(len(a_act)):
+            if a_act[i] > 1.0:
+                a_act[i] = 1.0
 
         self.legal_action_array = self.get_legal_action_array()
         self.gated_action_activations = a_act * self.legal_action_array
         self.legal_action_prob_distribution = self.gated_action_activations / self.gated_action_activations.sum()
 
         if config.Debug.action_system:
-            print("\nLegal Action Probabilities")
+            print("\n{} {} Legal Action Probabilities".format(self.animal.species, self.animal.id_number))
             for i in range(self.num_actions):
                 print("    {:9s}: {:0.3f} {} {:0.3f} {:0.3f}".format(self.action_list[i],
                                                                      a_act[i],
@@ -110,16 +116,8 @@ class ActionSystem:
             legal_action_array[self.action_index_dict['Move']] = 0
 
         # if not plant or object in current tile, make eat illegal
-        if "Plants" in self.animal.diet_dict:
-            if self.animal.diet_dict['Plants'] > 0:
-                if len(current_plant_list):
-                    legal_action_array[self.action_index_dict['Eat']] = 1
-
-        if "Meat" in self.animal.diet_dict:
-            if self.animal.diet_dict['Meat'] > 0:
-                if len(current_object_list):
-                    if current_object_list[0].object_type == "Meat":
-                        legal_action_array[self.action_index_dict['Eat']] = 1
+        if len(current_plant_list) > 0 or len(current_object_list) > 0:
+            legal_action_array[self.action_index_dict['Eat']] = 1
 
         return legal_action_array
 
@@ -141,7 +139,7 @@ class ActionSystem:
         self.action_choice_array[self.action_index_dict[self.action_choice]] = 1
 
         if config.Debug.action_system:
-            print("\nAction Choice")
+            print("\n{} {} Action Choice".format(self.animal.species, self.animal.id_number))
             print("    Action Choice Value", action_choice_number)
 
             cumulative_probability_sum = 0
@@ -179,7 +177,7 @@ class ActionSystem:
         self.action_argument_choice_array = self.animal.nervous_system.action_argument_outputs
 
         if config.Debug.action_system:
-            print("\nAction: Rest\n")
+            print("\n{} {} Action: Rest\n".format(self.animal.species, self.animal.id_number))
 
     ############################################################################################################
     def move(self):
@@ -206,7 +204,7 @@ class ActionSystem:
         self.action_argument_choice_array = self.animal.nervous_system.action_argument_outputs
 
         if config.Debug.action_system:
-            print("\nAction: Move")
+            print("\n{} {} Action: Move".format(self.animal.species, self.animal.id_number))
             print("    Old Position:", x, y)
             print("    Orientation:", self.animal.orientation)
             print("    New Position:", self.animal.position[0], self.animal.position[1], "\n")
@@ -232,135 +230,171 @@ class ActionSystem:
         self.action_argument_choice_array = self.animal.nervous_system.action_argument_outputs
 
         if config.Debug.action_system:
-            print("\nAction: Turn")
+            print("\n{} {} Action: Turn".format(self.animal.species, self.animal.id_number))
             print("    Turn Amount Mod:", turn_amount_mod)
             print("    Orientation:", old_orientation, self.animal.orientation, "\n")
 
     ############################################################################################################
     def attack(self):
         forward_tile = self.animal.nervous_system.view_list[2]
-        patient = self.animal.the_world.map[forward_tile].animal_list[0]
+        defender = self.animal.the_world.map[forward_tile].animal_list[0]
+        attacker = self.animal
 
-        damage1 = (self.animal.attack_strength * self.animal.current_size)/100
-        start_health1 = patient.drive_system.drive_value_array[patient.drive_system.drive_index_dict['Health']]
-        patient.drive_system.drive_value_array[patient.drive_system.drive_index_dict['Health']] -= damage1
-        end_health1 = patient.drive_system.drive_value_array[patient.drive_system.drive_index_dict['Health']]
+        attacker_strength = attacker.attack_strength * attacker.current_size
+        defender_strength = defender.attack_strength * defender.current_size
 
-        damage2 = (patient.attack_strength * patient.current_size)/100
-        start_health2 = self.animal.drive_system.drive_value_array[patient.drive_system.drive_index_dict['Health']]
-        self.animal.drive_system.drive_value_array[patient.drive_system.drive_index_dict['Health']] -= damage2
-        end_health2 = self.animal.drive_system.drive_value_array[patient.drive_system.drive_index_dict['Health']]
+        damage_to_defender = attacker_strength/100
+        defender_start_health = defender.drive_system.drive_value_array[defender.drive_system.drive_index_dict['Health']]
+        defender.drive_system.drive_value_array[defender.drive_system.drive_index_dict['Health']] -= damage_to_defender
+        defender_end_health = defender.drive_system.drive_value_array[defender.drive_system.drive_index_dict['Health']]
 
-        self.action_argument_choice_array = patient.appearance
+        damage_to_attacker = defender_strength/100
+        attacker_start_health = self.animal.drive_system.drive_value_array[defender.drive_system.drive_index_dict['Health']]
+        self.animal.drive_system.drive_value_array[defender.drive_system.drive_index_dict['Health']] -= damage_to_attacker
+        attacker_end_health = self.animal.drive_system.drive_value_array[defender.drive_system.drive_index_dict['Health']]
+
+        if defender.num_visible_features < config.World.appearance_size:
+            self.action_argument_choice_array = np.zeros([config.World.appearance_size])
+            for i in range(defender.num_visible_features):
+                self.action_argument_choice_array[i] = defender.appearance[i]
+        elif defender.num_visible_features > config.World.appearance_size:
+            self.action_argument_choice_array = defender.appearance[:config.World.appearance_size]
+        else:
+            self.action_argument_choice_array = defender.appearance
 
         if config.Debug.action_system:
-            print("\nAction: Attack!")
+            print("\n{} {} Action: Attack!".format(self.animal.species, self.animal.id_number))
             print("    {} {} Attack!".format(self.animal.species, self.animal.id_number))
             print("    Attacker: {} {}   Size: {:0.3f}    Attack Strength: {}".format(self.animal.species,
                                                                                       self.animal.id_number,
                                                                                       self.animal.current_size,
-                                                                                      self.animal.attack_strength))
-            print("    Defender: {} {}   Size: {:0.3f}    Attack Strength: {}".format(patient.species,
-                                                                                      patient.id_number,
-                                                                                      patient.current_size,
-                                                                                      patient.attack_strength))
-            print("    Attacker dealt {} damage, defender health {} to {}".format(damage1, start_health1, end_health1))
-            print("    Defender dealt {} damage, attacker health {} to {}".format(damage2, start_health2, end_health2))
+                                                                                      attacker_strength))
+            print("    Defender: {} {}   Size: {:0.3f}    Attack Strength: {}".format(defender.species,
+                                                                                      defender.id_number,
+                                                                                      defender.current_size,
+                                                                                      defender_strength))
+            print("    Attacker dealt {} damage, defender health {} to {}".format(damage_to_defender,
+                                                                                  defender_start_health,
+                                                                                  defender_end_health))
+            print("    Defender dealt {} damage, attacker health {} to {}\n".format(damage_to_attacker,
+                                                                                  attacker_start_health,
+                                                                                  attacker_end_health))
 
     ############################################################################################################
     def eat(self):
-        patient = None
         local_plant_list = self.animal.the_world.map[(self.animal.nervous_system.view_list[0])].plant_list
         local_object_list = self.animal.the_world.map[(self.animal.nervous_system.view_list[0])].object_list
-        eat_quantity = 0
         start_energy = self.animal.drive_system.drive_value_array[self.animal.drive_system.drive_index_dict['Energy']]
+        digest_meat = self.animal.phenotype.trait_value_dict['Digest Meat']
+        digest_plants = self.animal.phenotype.trait_value_dict['Digest Plants']
+        sharp_teeth = self.animal.phenotype.trait_value_dict['Sharp Teeth']
 
+        # if there is a meat object, determine how much energy the animal would get from eating it
         if len(local_object_list):
+
             local_object_kind = local_object_list[0].kind
-            if local_object_kind in self.animal.diet_dict:
-                object_energy_value = self.animal.diet_dict[local_object_kind]
+
+            if local_object_kind == 'Meat':
+                if local_object_list[0].quantity >= 10:
+                    meat_quantity = 10
+                else:
+                    meat_quantity = local_object_list[0].quantity
+
+                object_energy_value = meat_quantity * config.Animal.meat_energy * digest_meat * sharp_teeth
             else:
                 object_energy_value = 0
+                meat_quantity = 0
         else:
-            local_object_kind = None
             object_energy_value = 0
+            meat_quantity = 0
 
+        # if there is a plant object, determine how much energy the animal would get from eating it
         if len(local_plant_list):
-            plant_energy_value = self.animal.diet_dict["Plants"]
+            if local_plant_list[0].quantity >= 10:
+                plant_quantity = 10
+            else:
+                plant_quantity = local_plant_list[0].quantity
+
+            plant_energy_value = plant_quantity * config.Animal.plant_energy * digest_plants * (1 - sharp_teeth)
         else:
+            plant_quantity = 0
             plant_energy_value = 0
 
+        # eat the one that gives more energy, if either give energy
         if object_energy_value or plant_energy_value:
             if object_energy_value > plant_energy_value:
-                patient = local_object_list[0]
-                energy_value = object_energy_value
+                energy_gain = object_energy_value / 100
+                local_object_list[0].quantity -= meat_quantity
+                self.action_argument_choice_array = local_object_list[0].appearance
+                patient = 'meat'
+                eat_quantity = meat_quantity
             else:
-                patient = local_plant_list[0]
-                energy_value = plant_energy_value
+                energy_gain = plant_energy_value / 100
+                local_plant_list[0].quantity -= plant_quantity
+                self.action_argument_choice_array = local_plant_list[0].appearance
+                patient = 'grass'
+                eat_quantity = plant_quantity
         else:
-            energy_value = 0
-
-        if patient is not None:
-            if patient.quantity >= 10:
-                patient.quantity -= 10
-                eat_quantity = 10
-            if 0 <= patient.quantity < 10:
-                eat_quantity = patient.quantity
-                patient.quantity = 0
-
-        energy_gain = (eat_quantity * energy_value) / 100
+            energy_gain = 0
+            patient = 'none'
+            self.action_argument_choice_array = np.zeros([config.World.appearance_size])
+            eat_quantity = 0
 
         self.animal.drive_system.drive_value_array[self.animal.drive_system.drive_index_dict['Energy']] += energy_gain
         if self.animal.drive_system.drive_value_array[self.animal.drive_system.drive_index_dict['Energy']] > 1.0:
             self.animal.drive_system.drive_value_array[self.animal.drive_system.drive_index_dict['Energy']] = 1.0
 
-        self.action_argument_choice_array = patient.appearance
-
         if config.Debug.action_system:
-            print("\nAction: Eat")
+            print("\n{} {} Action: Eat".format(self.animal.species, self.animal.id_number))
             print("    Start Energy:", start_energy)
-            print("    Plants:", local_plant_list, plant_energy_value)
-            print("    Object:", local_object_list, local_object_kind, object_energy_value)
-            print("    Patient:", patient, patient.quantity)
-            print("    Eat Quantity: ", eat_quantity)
-            print("    Energy Value & Gain:", energy_value, energy_gain)
+            print("    Plants:", len(local_plant_list), plant_energy_value, plant_quantity, config.Animal.plant_energy, digest_plants, (1 - sharp_teeth))
+            print("    Object:", len(local_object_list), object_energy_value, meat_quantity, config.Animal.meat_energy, digest_meat, sharp_teeth)
+            print("    Patient:", patient, eat_quantity)
+            print("    Energy Gain:", energy_gain)
             print("    End Energy:", self.animal.drive_system.drive_value_array[self.animal.drive_system.drive_index_dict['Energy']])
             print("\n")
 
     ############################################################################################################
     def procreate(self):
 
-        patient = self.animal.the_world.map[(self.animal.nervous_system.view_list[2])].animal_list[0]
+        partner = self.animal.the_world.map[(self.animal.nervous_system.view_list[2])].animal_list[0]
         new_pregnancy = False
         prob = random.random()
 
-        if self.animal.species == patient.species:
-            if self.animal.phenotype.trait_value_dict['Sex'] != patient.phenotype.trait_value_dict['Sex']:
+        if self.animal.species == partner.species:
+            if self.animal.phenotype.trait_value_dict['Sex'] != partner.phenotype.trait_value_dict['Sex']:
                 if prob < config.Animal.pregnancy_chance:
                     if self.animal.phenotype.trait_value_dict['Sex'] == 1:
                         if self.animal.age >= config.Animal.childhood_length:
                             if self.animal.pregnant == 0:
-                                self.animal.get_pregnant(patient.genome)
+                                self.animal.get_pregnant(partner.genome)
                                 new_pregnancy = True
-                    if patient.phenotype.trait_value_dict['Sex'] == 1:
-                        if patient.age >= config.Animal.childhood_length:
-                            if patient.pregnant == 0:
-                                patient.get_pregnant(self.animal.genome)
+                    if partner.phenotype.trait_value_dict['Sex'] == 1:
+                        if partner.age >= config.Animal.childhood_length:
+                            if partner.pregnant == 0:
+                                partner.get_pregnant(self.animal.genome)
                                 new_pregnancy = True
 
-        self.action_argument_choice_array = patient.appearance
+        if partner.num_visible_features < config.World.appearance_size:
+            self.action_argument_choice_array = np.zeros([config.World.appearance_size])
+            for i in range(partner.num_visible_features):
+                self.action_argument_choice_array[i] = partner.appearance[i]
+        elif partner.num_visible_features > config.World.appearance_size:
+            self.action_argument_choice_array = partner.appearance[:config.World.appearance_size]
+        else:
+            self.action_argument_choice_array = partner.appearance
 
         if config.Debug.action_system:
-            print("\nAction: Procreate")
+            print("\n{} {} Action: Procreate".format(self.animal.species, self.animal.id_number))
             print("    Animal:", self.animal.species,
                   self.animal.id_number,
                   self.animal.phenotype.trait_value_dict['Sex'],
                   self.animal.age,
-                  patient.pregnant)
-            print("    Patient:", patient.species,
-                  patient.id_number,
-                  patient.phenotype.trait_value_dict['Sex'],
-                  patient.age,
-                  patient.pregnant)
+                  partner.pregnant)
+            print("    Partner:", partner.species,
+                  partner.id_number,
+                  partner.phenotype.trait_value_dict['Sex'],
+                  partner.age,
+                  partner.pregnant)
             print("    Prob & Threshold:", prob, config.Animal.pregnancy_chance)
             print("    New Pregnancy: ", new_pregnancy, "\n")

@@ -2,26 +2,32 @@
 class GlobalOptions:
     debug = False
     random_seed = None
-    summary_freq = 1
-    timing_freq = 0
+    summary_freq = 1        # how often animal summary info is printed to the terminal window
+    timing_freq = 0         # how often timing summary info is printed to the screen (mostly for analyzing performance)
     window_height = 800
     window_width = 1600
 
 
 ############################################################################################################
 class World:
-    num_rows = 30  # rows x grid size-1 must be < window_height
-    num_columns = 30  # columns x grid size-1 must be < window_width
-    grid_size = 32  # the width and height of each grid square (in pixels)
-    appearance_size = 20  # this is the size of the appearance vector generated for each thing
+    num_rows = 15  # rows x grid size-1 must be < window_height
+    num_columns = 15  # columns x grid size-1 must be < window_width
+    grid_size = 32  # the width and height of each grid square (in pixels). I wouldnt change this, not tested...
+    appearance_size = 30  # this is the size of the appearance vector generated for each thing
 
 
 ############################################################################################################
 class Terrain:
-    num_types = 3  # all edge tiles are made lakes, all interior tiles are made desert
-    plains_prob = .8  # then each grid tile has this chance of being made into plains
-    lake_prob = .0  # then each grid tile has this chance of being made into lake
+    plains_prob = .5  # then each grid tile has this chance of being made into plains
+    lake_prob = .1  # then each grid tile has this chance of being made into lake
     appearance_variance = 0.05  # the probability each feature of a terrain tile's appearance varies from its prototype
+
+    # the amount of plants (grass) that can exist in each terrain type, and also how quickly it grows back if eaten,
+    #    multiplying this number by the plant species's grow rate
+    fertility_dict = {'Plains': 1.00,
+                      'Desert': 0.05,
+                      'Lake': 0.00,
+                      'Ocean': 0.00}
 
 
 ############################################################################################################
@@ -38,81 +44,45 @@ class WorldObject:
 class Animal:
     output_data = False
 
-    appearance_size = 20
-    appearance_variance = 0.10
+    teeth_attack_strength = (1, 20)  # attack strength for 100% flat teeth to 100% sharp teeth
 
-    pregnancy_chance = 1.0
-    mutation_rate = 0.01
-    gestation_rate = 50
-    childhood_length = 100
+    plant_energy = 1                # amount of energy derived from eating 1 unit of plant
+    meat_energy = 10                # amount of energy derived from eating 1 unit of  meat
 
-    attack_strength = 5
-    teeth_attack_strength = 20
+    pregnancy_chance = 1.0          # probability of pregnancy given reproductive act
+    mutation_rate = 0.01            # probability of mutation on any given gene
+    gestation_rate = 50             # number of turns to produce a child
+    childhood_length = 100          # number of turns of childhood
 
-    metabolism = 2.0
-    pregnant_metabolism_multiplier = 2
+    metabolism = 2.0                    # general multiplier for energy cost of all actions
+    pregnant_metabolism_multiplier = 2  # increased energy cost for actions while pregnant
+    starvation_rate = 1.0               # health lost each turn energy = 0
 
-    starvation_rate = 1.0
-
-    allowed_terrain_dict = {'Lake': False,
-                            'Plains': True,
-                            'Desert': True
-                            }
-
+    # initial start values of the three drives
     drive_init_dict = {'Health': 1.0, 'Energy': 1.0, 'Arousal': 0.0}
 
-    action_noise = 0.01
-
+    # effects of each action on energy, health, and arousal
+    # note that other effects exist but defined elsewhere
+    # the effect of eating on energy is this value, plus the energy gained from the eating act itself,
+    #   which is defined in terms of what nad how much is eaten, and the organism's genetic ability to digest the food,
+    #   which is a function of tooth type and digestion type
+    #   effect of procreation on arousal is it's own gene
     action_drive_change_dict = {'Rest':      {'Health': 1.0, 'Energy': -0.01, 'Arousal': 0.0},
                                 'Attack':    {'Health': 0.0, 'Energy': -0.10, 'Arousal': 0.0},
                                 'Eat':       {'Health': 0.0, 'Energy': -0.03, 'Arousal': 0.0},
-                                'Procreate': {'Health': 0.0, 'Energy': -0.05, 'Arousal': -20.0},
+                                'Procreate': {'Health': 0.0, 'Energy': -0.05, 'Arousal': 0.0},
                                 'Turn':      {'Health': 0.1, 'Energy': -0.02, 'Arousal': 0.0},
                                 'Move':      {'Health': 0.0, 'Energy': -0.10, 'Arousal': 0.0}}
-
-    # num nucleotides in gene, how converted to value
-    trait_gene_size_dict = {'Sex':                      (1, 'binary'),
-                            'Max Size':                 (9, 'sum'),
-                            'Diet':                     (20, 'mean'),
-                            'Teeth':                    (20, 'mean'),
-                            'Breathes':                 (10, 'mean'),
-                            'Num Hidden Neurons':       (8, 'binary'),
-                            'Weight Init Stdev':        (8, 'inv_binary'),
-                            'Prediction Learning Rate': (8, 'inv_binary'),
-                            'Health Value Target':      (4, 'inv_binary'),
-                            'Health Learning Rate':     (8, 'inv_binary'),
-                            'HealthD Learning Rate':    (8, 'inv_binary'),
-                            'Energy Value Target':      (4, 'inv_binary'),
-                            'Energy Learning Rate':     (8, 'inv_binary'),
-                            'EnergyD Learning Rate':    (8, 'inv_binary'),
-                            'Arousal Value Target':     (4, 'inv_binary'),
-                            'Arousal Learning Rate':    (8, 'inv_binary'),
-                            'ArousalD Learning Rate':   (8, 'inv_binary'),
-                            'Rest Bias':                (4, 'sum'),
-                            'Attack Bias':              (4, 'sum'),
-                            'Eat Bias':                 (4, 'sum'),
-                            'Procreate Bias':           (4, 'sum'),
-                            'Turn Bias':                (4, 'sum'),
-                            'Move Bias':                (4, 'sum'),
-                            'Appearance':               (20, 'vector'),
-                            'Arousal Growth':           (8,  'inv_binary')
-                            }
 
 
 ############################################################################################################
 class Lion:
-    start_number = 10
-    diet_dict = {'Meat': 2,
-                 'Plants': 0}
-    species_metabolism_multiplier = 1
+    start_number = 4
 
 
 ############################################################################################################
 class Zebra:
-    start_number = 20
-    diet_dict = {'Meat': 0,
-                 'Plants': 1}
-    species_metabolism_multiplier = 1
+    start_number = 4
 
 
 ############################################################################################################

@@ -15,6 +15,7 @@ class Tile:
         self.terrain_type = None
         self.image = None
         self.appearance = None
+        self.fertility = None
 
     ############################################################################################################
     def __repr__(self):
@@ -22,15 +23,19 @@ class Tile:
         return output_string
 
     ############################################################################################################
-    def change_appearance(self, appearance):
-        self.appearance = appearance
-
-        for i in range(len(self.appearance)):
-            choice = random.random()
-            if choice < config.Terrain.appearance_variance:
+    def init_terrain(self):
+        for i in range(config.World.appearance_size):
+            if random.random() < config.Terrain.appearance_variance:
                 if self.appearance[i] == 0:
                     self.appearance[i] = 1
                 else:
                     self.appearance[i] = 0
+
+        self.fertility = config.Terrain.fertility_dict[self.terrain_type]
+
+
+
+
+
 
 

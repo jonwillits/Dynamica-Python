@@ -1,4 +1,3 @@
-from src import config
 import numpy as np
 
 
@@ -6,7 +5,6 @@ class Phenotype:
     ############################################################################################################
     def __init__(self, animal):
         self.animal = animal
-        self.trait_gene_size_dict = config.Animal.trait_gene_size_dict
 
         self.num_traits = None
         self.trait_list = None
@@ -14,16 +12,17 @@ class Phenotype:
         self.trait_value_dict = None
 
         self.init_traits()
-        self.adjust_traits()
 
     ############################################################################################################
     def __repr__(self):
-        output_string =  "Phenotype: {} Traits\n".format(self.num_traits)
+        output_string = "Phenotype: {} Traits\n".format(self.num_traits)
         for trait in self.trait_value_dict:
+            print(trait, self.trait_value_dict[trait])
             if isinstance(self.trait_value_dict[trait], np.ndarray):
                 value = ""
                 for e in self.trait_value_dict[trait]:
-                    if e.is_integer():
+                    print(e.dtype)
+                    if e.dtype == 'int64':
                         value += "{:0.0f} ".format(e)
                     else:
                         value += "{:0.2f} ".format(e)
@@ -43,34 +42,41 @@ class Phenotype:
         self.trait_index_dict = {}
         self.trait_value_dict = {}
 
-        for trait in self.trait_gene_size_dict:
-
-            self.trait_list.append(trait)
-            self.trait_index_dict[trait] = self.num_traits
+        for i in range(self.animal.genome.num_genes):
+            label = self.animal.genome.gene_label_list[i]
+            self.trait_list.append(label)
+            self.trait_index_dict[label] = self.num_traits
             self.num_traits += 1
 
-            gene = self.animal.genome.gene_list[self.animal.genome.gene_index_dict[trait]]
-            if self.trait_gene_size_dict[trait][1] == 'sum':
-                self.trait_value_dict[trait] = gene.sum()
+            gene = self.animal.genome.gene_dict[label]
 
-            elif self.trait_gene_size_dict[trait][1] == 'mean':
-                self.trait_value_dict[trait] = round(gene.mean(), 6)
+            if gene.gene_type == 'vector':
+                self.trait_value_dict[label] = gene.sequence
 
-            elif self.trait_gene_size_dict[trait][1] == 'binary':
-                self.trait_value_dict[trait] = int(np.array2string(gene, separator="")[1:-1], 2)
+            elif gene.gene_type == 'int':
 
-            elif self.trait_gene_size_dict[trait][1] == 'inv_binary':
-                self.trait_value_dict[trait] = round(1 / (int(np.array2string(gene, separator="")[1:-1], 2) + 1), 6)
-
-            elif self.trait_gene_size_dict[trait][1] == 'direction':
-                if gene.sum() > 0:
-                    self.trait_value_dict[trait] = 1
+                if gene.size == 0:
+                    self.trait_value_dict[label] = gene.sequence[0]
                 else:
-                    self.trait_value_dict[trait] = -1
+                    sequence_matrix = gene.sequence.reshape(gene.size, 9)
+                    final_value = 0
+                    for j in range(gene.size):
+                        current_sequence = sequence_matrix[gene.size-1-j, :]
+                        value = current_sequence.sum()
+                        final_value += value * 10**j
+                    self.trait_value_dict[label] = final_value
 
-            elif self.trait_gene_size_dict[trait][1] == 'vector':
-                self.trait_value_dict[trait] = gene
+            elif gene.gene_type == 'float':
+                if gene.sequence.sum() == len(gene.sequence):
+                    self.trait_value_dict[label] = 1.0
+                else:
+                    sequence_matrix = gene.sequence.reshape(gene.size, 9)
+                    final_value = 0
+                    for j in range(gene.size):
+                        current_sequence = sequence_matrix[j, :]
+                        value = current_sequence.sum()
+                        final_value += value * 10**(-j-1)
+                    self.trait_value_dict[label] = final_value
 
-    ############################################################################################################
-    def adjust_traits(self):
-        self.trait_value_dict['Max Size'] += 1
+
+

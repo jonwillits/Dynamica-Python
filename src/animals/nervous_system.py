@@ -1,6 +1,7 @@
 import numpy as np
 from src import config
 from src.animals.neural_network import NeuralNetwork
+import sys
 
 
 class NervousSystem:
@@ -64,7 +65,6 @@ class NervousSystem:
         self.view_list = None
         self.sensory_matrix = None
         self.sensory_array = None
-
         self.init_nervous_system()
 
     ############################################################################################################
@@ -97,6 +97,7 @@ class NervousSystem:
         self.d_size = self.animal.drive_system.num_drives
         self.a_size = self.animal.action_system.num_actions
         self.aa_size = config.World.appearance_size
+
         self.input_size = self.s_size + self.d_size + self.a_size + self.aa_size + self.h_size
 
         self.output_size = self.s_size + self.d_size + self.a_size + self.aa_size
@@ -156,9 +157,29 @@ class NervousSystem:
         view_list = self.get_view_list()
         rep_list = []
         for view in view_list:
+
             tile_rep_array = self.get_tile_representation(view)
+
             rep_list.append(tile_rep_array)
-        sensory_matrix = np.array(rep_list)
+        try:
+            sensory_matrix = np.array(rep_list)
+        except Exception as e:
+            print("ERROR: {}".format(e))
+            np.set_printoptions(suppress=True, precision=3, linewidth=1000, sign=' ', floatmode='maxprec')
+            print(self.animal.species, self.animal.id_number, self.animal.position)
+            for i in range(len(view_list)):
+                print(view_list)
+                print(len(view_list), len(rep_list))
+                for i in range(len(rep_list)):
+                    print(len(rep_list[i]))
+                    for j in range(len(rep_list[i])):
+                        print("    ", len(rep_list[i][j]))
+                    print(len(rep_list))
+                response = input("Continue? (y/n")
+                if response == 'y':
+                    pass
+                else:
+                    sys.exit(2)
         return sensory_matrix
 
     ############################################################################################################
@@ -178,33 +199,59 @@ class NervousSystem:
 
     ############################################################################################################
     def get_tile_representation(self, tile_location):
+        # a tile representation should be a 4-by-appearance_size matrix, where the four rows represent
+        #   1) the terrain
+        #   2) the animal if one is there, or the terrain
+        #   3) the plant, if one is there, or the terrain
+        #   4) the object, if one is there, or the terrain
 
         tile_representation_list = []
         x = tile_location[0]
         y = tile_location[1]
-
         if (x >= 0) and (y >= 0) and (x <= config.World.num_columns - 1) and (y <= config.World.num_rows - 1):
-            tile_representation_list.append(self.animal.the_world.map[x, y].appearance)
 
+            # the appearance of the terrain
+            terrain_appearance = self.animal.the_world.map[x, y].appearance
+
+            # the appearance of the animal if there is one, or the terrain
             if len(self.animal.the_world.map[x, y].animal_list):
-                tile_representation_list.append(self.animal.the_world.map[x, y].animal_list[0].appearance)
-            else:
-                tile_representation_list.append(self.animal.the_world.map[x, y].appearance)
 
+                animal = self.animal.the_world.map[x, y].animal_list[0]
+                animal_appear_len = len(animal.appearance)
+
+                if animal_appear_len < config.World.appearance_size:
+                    animal_appearance = np.copy(terrain_appearance).astype(float)
+                    for i in range(animal_appear_len):
+                        animal_appearance[i] = animal.appearance[i]
+                elif animal_appear_len > config.World.appearance_size:
+                    animal_appearance = animal.appearance[:config.World.appearance_size]
+                else:
+                    animal_appearance = animal.appearance
+            else:
+                animal_appearance = terrain_appearance
+
+            # the appearance of the plant if there is one, or the terrain
             if len(self.animal.the_world.map[x, y].plant_list):
-                tile_representation_list.append(self.animal.the_world.map[x, y].plant_list[0].appearance)
+                plant_appearance = self.animal.the_world.map[x, y].plant_list[0].appearance
             else:
-                tile_representation_list.append(self.animal.the_world.map[x, y].appearance)
+                plant_appearance = terrain_appearance
 
+            # the appearance of the object if there is one, or the terrain
             if len(self.animal.the_world.map[x, y].object_list):
-                tile_representation_list.append(self.animal.the_world.map[x, y].object_list[0].appearance)
+                object_appearance = self.animal.the_world.map[x, y].object_list[0].appearance
             else:
-                tile_representation_list.append(self.animal.the_world.map[x, y].appearance)
+                object_appearance = terrain_appearance
+
         else:
-            tile_representation_list.append(np.ones([config.World.appearance_size]) * 0.5)
-            tile_representation_list.append(np.ones([config.World.appearance_size]) * 0.5)
-            tile_representation_list.append(np.ones([config.World.appearance_size]) * 0.5)
-            tile_representation_list.append(np.ones([config.World.appearance_size]) * 0.5)
+            terrain_appearance = np.ones([config.World.appearance_size]) * 0.5
+            animal_appearance = np.ones([config.World.appearance_size]) * 0.5
+            plant_appearance = np.ones([config.World.appearance_size]) * 0.5
+            object_appearance = np.ones([config.World.appearance_size]) * 0.5
+
+        tile_representation_list.append(terrain_appearance)
+        tile_representation_list.append(animal_appearance)
+        tile_representation_list.append(plant_appearance)
+        tile_representation_list.append(object_appearance)
 
         tile_rep_array = np.array(tile_representation_list)
 
@@ -217,12 +264,27 @@ class NervousSystem:
                                              self.animal.action_system.action_choice_array,
                                              self.animal.action_system.action_argument_choice_array,
                                              self.neural_hidden_state))
+
         neural_hidden_state, neural_output_state = self.neural_network.feedforward(self.neural_input_state)
         return neural_input_state, neural_hidden_state, neural_output_state
 
     ############################################################################################################
+    @staticmethod
+    def print_tile_representation(rep_type, rep_array):
+        output_string = "        {}: [".format(rep_type)
+        for i in range(len(rep_array)):
+            if isinstance(rep_array[i], float):
+                output_string += " {:0.2f}".format(rep_array[i])
+            else:
+                output_string += " {}".format(rep_array[i])
+        output_string += "]"
+        print(output_string)
+
+    ############################################################################################################
     def stored_neural_feedforward(self):
+
         self.update_sensory_state()
+
         neural_input_state, neural_hidden_state, neural_output_state = self.neural_feedforward()
 
         self.neural_input_state = neural_input_state
@@ -235,32 +297,19 @@ class NervousSystem:
         self.action_argument_outputs = self.neural_output_state[self.aa_indexes[0]:self.aa_indexes[1] + 1]
 
         if config.Debug.nervous_system:
-            print("\nSensory State:")
+            np.set_printoptions(suppress=True, precision=3, linewidth=1000, sign=' ',floatmode='maxprec')
+            print("\n{} {} NN FF Sensory State:".format(self.animal.species, self.animal.id_number))
             print("    Position & Orientation:", self.animal.position, self.animal.orientation)
             print("    Sensory Matrix:", self.sensory_matrix.shape)
             for i in range(self.sensory_matrix.shape[0]):
                 print("    Tile", self.view_list[i])
-                print("        terrain:", np.array2string(self.sensory_matrix[i, 0, :],
-                                                          precision=2,
-                                                          floatmode='maxprec',
-                                                          separator=' ',
-                                                          suppress_small=True))
-                print("        animal:", np.array2string(self.sensory_matrix[i, 1, :],
-                                                         precision=2,
-                                                         floatmode='maxprec',
-                                                         separator=' ',
-                                                         suppress_small=True))
-                print("        plant:", np.array2string(self.sensory_matrix[i, 2, :],
-                                                        precision=2,
-                                                        floatmode='maxprec',
-                                                        separator=' ',
-                                                        suppress_small=True))
-                print("        object:", np.array2string(self.sensory_matrix[i, 3, :],
-                                                         precision=2,
-                                                         floatmode='maxprec',
-                                                         separator=' ',
-                                                         suppress_small=True))
+                self.print_tile_representation("terrain", self.sensory_matrix[i, 0, :])
+                self.print_tile_representation("animal", self.sensory_matrix[i, 1, :])
+                self.print_tile_representation("plant", self.sensory_matrix[i, 2, :])
+                self.print_tile_representation("object", self.sensory_matrix[i, 3, :])
             print("    Sensory Array:", self.sensory_array.shape)
+            print("    Drive Outputs:", self.drive_outputs)
+            print("    Action Outputs:", self.action_outputs)
             print("\n")
 
     ############################################################################################################
@@ -271,8 +320,8 @@ class NervousSystem:
 
         y_actual = np.concatenate((self.sensory_array, self.animal.drive_system.drive_value_array,
                                    self.animal.action_system.action_choice_array, self.action_argument_outputs))
-
         self.neural_network_prediction_cost = self.neural_network.calc_cost(y_actual, y_predicted)
+
         self.neural_network.backpropogation(self.neural_input_state, y_predicted, self.neural_hidden_state,
                                             self.neural_network_prediction_cost, self.p_learning_rate)
 

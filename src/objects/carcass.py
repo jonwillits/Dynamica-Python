@@ -25,7 +25,7 @@ class Carcass(world_object.WorldObject):
             num_dead_bits = 5
 
         for i in range(num_dead_bits):
-            self.appearance[-i] = 0.5
+            self.appearance[-i] = 0.666
 
     ############################################################################################################
     def next_turn(self):

@@ -1,5 +1,5 @@
 from src import config
-from src.terrain.terrain_types import lake, plains, desert
+from src.terrain.terrain_types import lake, plains, desert, ocean
 from src.animals.species import lion, zebra
 from src.plants.species import grass
 from src.objects import carcass
@@ -18,8 +18,8 @@ class World:
         self.world_size = 0
         self.land_size = 0
         self.water_size = 0
-        self.num_rows = config.World.num_rows
-        self.num_columns = config.World.num_columns
+        self.num_rows = config.World.num_rows + 2
+        self.num_columns = config.World.num_columns + 2
         self.map = {}
 
         self.animal_list = []
@@ -43,7 +43,6 @@ class World:
         random.seed(self.random_seed)
         np.random.seed(self.random_seed)
 
-        self.generate_appearances()
         self.generate_world()
         self.generate_plants()
         self.generate_animals()
@@ -53,21 +52,8 @@ class World:
 
         self.world_timers_array = np.zeros([12])
 
-        if config.Animal.output_data:
-            self.animal_summary_filename = "output/" + str(self.random_seed) + "_animals_n" + str(len(self.animal_list)) + ".txt"
-
-    ############################################################################################################
-    def generate_appearances(self):
-        self.appearance_dict = {}
-
-        for terrain_type in ['Lake', 'Plains', 'Desert']:
-            self.appearance_dict[terrain_type] = np.random.randint(0, 2, [config.World.appearance_size]).astype(float)
-
-        for species in ['Grass']:
-            self.appearance_dict[species] = np.random.randint(0, 2, [config.World.appearance_size]).astype(float)
-
-        for species in ['Lion', 'Zebra']:
-            self.appearance_dict[species] = np.random.randint(0, 2, [config.World.appearance_size]).astype(float)
+        # if config.Animal.output_data:
+        #     self.animal_summary_filename = "output/" + str(self.random_seed) + "_animals_n" + str(len(self.animal_list)) + ".txt"
 
     ############################################################################################################
     def generate_world(self):
@@ -76,29 +62,28 @@ class World:
                 self.world_size += 1
                 new_tile = self.choose_tile_type(i, j)
                 self.map[(j, i)] = new_tile
-
         self.land_size = self.world_size - self.water_size
 
     ############################################################################################################
     def choose_tile_type(self, i, j):
         if (i == 0) or (i == self.num_rows - 1) or (j == 0) or (j == self.num_columns - 1):
-            new_tile = lake.Lake(j, i)
-            new_tile.change_appearance(self.appearance_dict['Lake'])
+            new_tile = ocean.Ocean(j, i)
+            new_tile.init_terrain()
             self.water_size += 1
         else:
             lake_value = random.uniform(0, 1)
             if lake_value < config.Terrain.lake_prob:
                 new_tile = lake.Lake(j, i)
-                new_tile.change_appearance(self.appearance_dict['Lake'])
+                new_tile.init_terrain()
                 self.water_size += 1
             else:
                 plains_value = random.uniform(0, 1)
                 if plains_value < config.Terrain.plains_prob:
                     new_tile = plains.Plains(j, i)
-                    new_tile.change_appearance(self.appearance_dict['Plains'])
+                    new_tile.init_terrain()
                 else:
                     new_tile = desert.Desert(j, i)
-                    new_tile.change_appearance(self.appearance_dict['Desert'])
+                    new_tile.init_terrain()
 
         return new_tile
 
@@ -107,9 +92,10 @@ class World:
 
         for i in range(self.num_rows):
             for j in range(self.num_columns):
-                if self.map[(j, i)].terrain_type == 'Plains':
-                    new_grass = grass.Grass(self)
-                    new_grass.change_appearance(self.appearance_dict['Grass'])
+                if self.map[(j, i)].fertility > 0:
+                    new_grass = grass.Grass(self.entity_counter, self, (j, i), self.map[(j, i)].fertility)
+                    self.entity_counter += 1
+                    new_grass.init_plant()
                     self.map[(j, i)].plant_list.append(new_grass)
                     self.plant_list.append(new_grass)
 
@@ -122,10 +108,14 @@ class World:
     def generate_animals(self):
 
         for i in range(config.Lion.start_number):
-            self.animal_list.append(lion.Lion(self, None, None))
+            new_animal = lion.Lion(self, None, None)
+            new_animal.init_animal()
+            self.animal_list.append(new_animal)
 
         for i in range(config.Zebra.start_number):
-            self.animal_list.append(zebra.Zebra(self, None, None))
+            new_animal = zebra.Zebra(self, None, None)
+            new_animal.init_animal()
+            self.animal_list.append(new_animal)
 
         if len(self.animal_list) > self.land_size:
             print("ERROR: Number of animals is > the number of land tiles")
@@ -134,7 +124,6 @@ class World:
             random.shuffle(self.animal_list)
 
             for i in range(len(self.animal_list)):
-                self.animal_list[i].update_appearance(self.appearance_dict[self.animal_list[i].species])
 
                 if self.animal_list[i].species not in self.animal_species_counts_dict:
                     self.animal_species_counts_dict[self.animal_list[i].species] = 1
@@ -142,7 +131,6 @@ class World:
                     self.animal_species_counts_dict[self.animal_list[i].species] += 1
 
                 self.place_animal(self.animal_list[i])
-
                 self.animal_list[i].nervous_system.update_sensory_state()
 
     ############################################################################################################
@@ -150,8 +138,8 @@ class World:
         if position is None:
             placed = False
             while not placed:
-                column = random.randint(0, config.World.num_columns - 1)
-                row = random.randint(0, config.World.num_rows - 1)
+                column = random.randint(1, self.num_columns - 2)
+                row = random.randint(1, self.num_rows - 2)
                 current_tile = self.map[(column, row)]
                 terrain_type = current_tile.terrain_type
                 if animal.allowed_terrain_dict[terrain_type]:
@@ -252,18 +240,21 @@ class World:
     ############################################################################################################
     def next_turn(self):
 
+        # take a turn for each nonliving object in the world
         start_time = time.time()
         if len(self.object_list):
             for world_object in self.object_list:
                 world_object.next_turn()
         self.world_timers_array[0] += time.time() - start_time
 
+        # take a turn for each plant in the world
         start_time = time.time()
         if len(self.plant_list):
             for plant in self.plant_list:
                 plant.next_turn()
         self.world_timers_array[1] += time.time() - start_time
 
+        # take a turn for each animal in the world
         if len(self.animal_list):
             for animal in self.animal_list:
                 # normal turn actions
@@ -278,6 +269,7 @@ class World:
                             animal.fetus = zebra.Zebra(self, animal.genome, animal.baby_daddy_genome)
                         elif animal.species == 'Lion':
                             animal.fetus = lion.Lion(self, animal.genome, animal.baby_daddy_genome)
+                        animal.fetus.init_animal()
 
                     if animal.pregnant >= config.Animal.gestation_rate:
 
@@ -305,10 +297,12 @@ class World:
                     self.kill_animal(animal)
                 self.world_timers_array[10] += time.time() - start_time
 
+        # calculate turn summary information
         start_time = time.time()
         self.calc_turn_summary()
         self.world_timers_array[11] += time.time() - start_time
 
+        # output turn summary information
         if config.GlobalOptions.summary_freq:
             if self.current_turn % config.GlobalOptions.summary_freq == 0:
                 self.print_summary()

@@ -63,7 +63,7 @@ class DriveSystem:
 
         # drop health by the starvation rate
         if self.drive_value_array[self.drive_index_dict['Energy']] <= 0:
-            self.drive_value_array[self.drive_index_dict['Health']] -= config.Animal.starvation_rate/100
+            self.drive_value_array[self.drive_index_dict['Health']] -= config.Animal.starvation_rate / 100
 
         # raise arousal by the genetically determined arousal growth rate
         self.drive_value_array[self.drive_index_dict['Arousal']] += self.animal.phenotype.trait_value_dict['Arousal Growth']
