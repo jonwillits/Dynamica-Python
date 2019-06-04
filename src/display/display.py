@@ -17,7 +17,7 @@ class Display:
 
         self.num_rows = config.World.num_rows
         self.num_columns = config.World.num_columns
-        self.grid_size = config.World.grid_size
+        self.grid_size = 32
         self.world_height = None
         self.world_width = None
 

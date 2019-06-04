@@ -1,1 +1,0 @@
-turn    WLD    obj    pla    ff1    act    dri    ff2    unn    grw    uap    pre    die    sum   | DIS    wld    del    ter    obj    ani    sum    roo    idl

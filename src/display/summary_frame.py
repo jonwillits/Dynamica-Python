@@ -135,3 +135,10 @@ class SummaryFrame(tk.Frame):
         self.display.species_summary_window = tk.Toplevel(self.display.root)
         self.species_summary_window_instance = species_info_window.SpeciesInfoWindow(self.display.species_summary_window,
                                                                                      self.display.the_world, species)
+
+
+############################################################################################################
+class AnimalSummary:
+
+    def __init__(self):
+        pass

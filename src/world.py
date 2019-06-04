@@ -10,7 +10,10 @@ import numpy as np
 
 
 class World:
-    def __init__(self):
+    def __init__(self, save_file):
+        self.save_file = save_file
+
+        self.appearance_size = 30
 
         self.current_turn = 0
         self.entity_counter = 0
@@ -31,7 +34,8 @@ class World:
         self.object_counts_dict = {}
 
         self.turn_summary_dict = None
-        self.initial_animal_summary_dict = None
+        self.plant_summary_dict = None
+        self.animal_summary_dict = None
 
         self.appearance_dict = None
         random_seed = config.GlobalOptions.random_seed
@@ -48,12 +52,9 @@ class World:
         self.generate_animals()
         self.generate_objects()
         self.calc_turn_summary()
-        self.calc_initial_animal_summaries()
+        self.init_summaries()
 
         self.world_timers_array = np.zeros([12])
-
-        # if config.Animal.output_data:
-        #     self.animal_summary_filename = "output/" + str(self.random_seed) + "_animals_n" + str(len(self.animal_list)) + ".txt"
 
     ############################################################################################################
     def generate_world(self):
@@ -180,62 +181,113 @@ class World:
                 self.turn_summary_dict['Animal'][species][3] /= self.turn_summary_dict['Animal'][species][0]
 
     ############################################################################################################
-    def calc_initial_animal_summaries(self):
-        self.initial_animal_summary_dict = {}
-        for species in self.animal_species_counts_dict:
-            animal_summary_dict = self.calc_species_summary(species)
-            self.initial_animal_summary_dict[species] = animal_summary_dict
+    def init_summaries(self):
 
-    ############################################################################################################
-    def calc_species_summary(self, species):
+        self.plant_summary_dict = {}
+        self.animal_summary_dict = {}
 
-        animal_summary_dict = {'N': self.turn_summary_dict['Animal'][species][0],
-                               'Drive Values': self.turn_summary_dict['Animal'][species][1:]}
-        sex_sum = 0.0
-        age_sum = 0.0
-        size_sum = 0.0
-        hidden_sum = 0.0
-        learning_rate_sum = 0.0
-        weight_init_stdev_sum = 0.0
-        drive_target_sums = np.zeros([3], float)
-        drive_reinforcement_sums = np.zeros([2, 3], float)
-        action_output_sums = np.zeros([6], float)
+        for plant in self.plant_list:
+            if plant.species not in self.plant_summary_dict:
+                summary_label_list = ['N', 'Quantity']
+                self.plant_summary_dict[plant.species] = [summary_label_list, None]
 
         for animal in self.animal_list:
+            if animal.species not in self.animal_summary_dict:
+                summary_label_list = ['N', 'Sex', 'Age', 'Current Size']
+
+                for trait in animal.phenotype.trait_list:
+                    summary_label_list.append(trait)
+
+                for drive in animal.drive_system.drive_list:
+                    summary_label_list.append(drive)
+
+                for action in animal.action_system.action_list:
+                    summary_label_list.append(action)
+
+                summary_label_list.append('Prediction Error')
+                for drive in animal.drive_system.drive_list:
+                    summary_label_list.append(drive + " Reinforcement Error")
+                    summary_label_list.append(drive + " Delta Reinforcement Error")
+
+                self.animal_summary_dict[animal.species] = [summary_label_list, None]
+
+        self.update_species_summaries()
+
+    ############################################################################################################
+    def update_species_summaries(self):
+        for species in self.animal_species_counts_dict:
+            label_list = self.animal_summary_dict[species][0]
+            old_data = self.animal_summary_dict[species][1]
+            new_data = self.get_animal_summary(species)
+
+            if old_data is None:
+                self.animal_summary_dict[species] = [label_list, new_data]
+            else:
+                old_data = np.copy(self.animal_summary_dict[species][1])
+                self.animal_summary_dict[species] = [label_list, np.vstack((old_data, new_data))]
+
+        for species in self.plant_species_counts_dict:
+            label_list = self.plant_summary_dict[species][0]
+            old_data = self.plant_summary_dict[species][1]
+            new_data = self.get_plant_summary(species)
+
+            if old_data is None:
+                self.plant_summary_dict[species] = [label_list, new_data]
+            else:
+                old_data = np.copy(self.plant_summary_dict[species][1])
+                self.plant_summary_dict[species] = [label_list, np.vstack((old_data, new_data))]
+
+    ############################################################################################################
+    def get_plant_summary(self, species):
+
+        label_list = self.plant_summary_dict[species][0]
+        new_data = np.zeros([len(label_list)+1], float)
+        new_data[0] = self.current_turn
+        for plant in self.plant_list:
+            if plant.species == species:
+                new_data[1] += 1
+                new_data[2] += plant.quantity
+        new_data[2] /= new_data[1]
+
+        return new_data
+
+    ############################################################################################################
+    def get_animal_summary(self, species):
+
+        label_list = self.animal_summary_dict[species][0]
+        new_data = np.zeros([len(label_list)+1], float)
+        new_data[0] = self.current_turn
+        for animal in self.animal_list:
             if animal.species == species:
-                input_state, hidden_state, output_state = animal.nervous_system.neural_feedforward()
-                sensory_outputs = output_state[animal.nervous_system.s_indexes[0]:animal.nervous_system.s_indexes[1] + 1]
-                drive_outputs = output_state[animal.nervous_system.d_indexes[0]:animal.nervous_system.d_indexes[1] + 1]
-                action_outputs = output_state[animal.nervous_system.a_indexes[0]:animal.nervous_system.a_indexes[1] + 1]
-                action_argument_outputs = output_state[animal.nervous_system.aa_indexes[0]:animal.nervous_system.aa_indexes[1] + 1]
+                new_data[1] += 1
+                new_data[2] += animal.age
+                new_data[3] += animal.current_size
 
-                if animal.phenotype.trait_value_dict['Sex'] == 1:
-                    sex_sum += 1
-                age_sum += animal.age
-                size_sum += animal.phenotype.trait_value_dict['Max Size']
-                hidden_sum += animal.phenotype.trait_value_dict['Num Hidden Neurons']
-                learning_rate_sum += animal.phenotype.trait_value_dict['Prediction Learning Rate']
-                weight_init_stdev_sum += animal.phenotype.trait_value_dict['Weight Init Stdev']
-                drive_target_sums += animal.nervous_system.drive_target_array
-                drive_reinforcement_sums += animal.nervous_system.drive_reinforcement_rate_matrix
-                action_output_sums += action_outputs
+                i = 4
+                for trait in animal.phenotype.trait_list:
+                    new_data[i] += animal.phenotype.trait_value_dict[trait]
+                    i += 1
 
-        if animal_summary_dict['N'] > 0:
-            n = animal_summary_dict['N']
-        else:
-            n = 1
+                for j in range(animal.drive_system.num_drives):
+                    new_data[i] += animal.drive_system.drive_value_array[j]
+                    i += 1
 
-        animal_summary_dict['Sex'] = sex_sum / n
-        animal_summary_dict['Age'] = age_sum / n
-        animal_summary_dict['Size'] = size_sum / n
-        animal_summary_dict['Hidden Neurons'] = hidden_sum / n
-        animal_summary_dict['Prediction Learning Rate'] = learning_rate_sum / n
-        animal_summary_dict['Weight Init Stdev'] = weight_init_stdev_sum / n
-        animal_summary_dict['Drive Targets'] = drive_target_sums / n
-        animal_summary_dict['Drive Reinforcement Rates'] = drive_reinforcement_sums / n
-        animal_summary_dict['Action Outputs'] = action_output_sums / n
+                for j in range(animal.action_system.num_actions):
+                    new_data[i] += animal.action_system.action_outputs[j]
+                    i += 1
 
-        return animal_summary_dict
+                new_data[i] = animal.nervous_system.neural_network_prediction_cost.sum()
+                new_data[i+1] = animal.nervous_system.neural_network_drive_costs[0][0].sum()
+                new_data[i+2] = animal.nervous_system.neural_network_drive_costs[0][1].sum()
+                new_data[i+3] = animal.nervous_system.neural_network_drive_costs[1][1].sum()
+                new_data[i+4] = animal.nervous_system.neural_network_drive_costs[1][1].sum()
+                new_data[i+5] = animal.nervous_system.neural_network_drive_costs[2][1].sum()
+                new_data[i+6] = animal.nervous_system.neural_network_drive_costs[2][1].sum()
+
+        for i in range(len(new_data)-2):
+            new_data[i+2] /= new_data[1]
+
+        return new_data
 
     ############################################################################################################
     def next_turn(self):
@@ -306,6 +358,7 @@ class World:
         if config.GlobalOptions.summary_freq:
             if self.current_turn % config.GlobalOptions.summary_freq == 0:
                 self.print_summary()
+                self.update_species_summaries()
                 if config.Animal.output_data:
                     self.write_summary()
 
@@ -393,7 +446,7 @@ class World:
     def create_carcass(self, animal):
         object_type = "Meat"
         animal_carcass = carcass.Carcass(object_type, animal.dead_graphic_object,
-                                              animal.appearance, animal.current_size, self)
+                                         animal.appearance, animal.current_size, self)
         animal_carcass.position = animal.position
 
         self.object_list.append(animal_carcass)

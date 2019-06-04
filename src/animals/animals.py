@@ -109,10 +109,10 @@ class Animal:
 
                 appearance_list.append(scaled_value)
 
-        while len(appearance_list) < config.World.appearance_size:
+        while len(appearance_list) < 30:
             appearance_list.append(0)
-        if len(appearance_list) > config.World.appearance_size:
-            appearance_list = appearance_list[:config.World.appearance_size]
+        if len(appearance_list) > 30:
+            appearance_list = appearance_list[:30]
 
         self.appearance = np.array(appearance_list)
         self.update_appearance()

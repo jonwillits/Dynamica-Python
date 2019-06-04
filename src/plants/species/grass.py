@@ -4,14 +4,16 @@ import numpy as np
 
 
 class Grass(plants.Plant):
-    class_appearance = np.random.randint(2, size=config.World.appearance_size)
 
     ############################################################################################################
     def __init__(self, id_number, the_world, position, tile_fertility):
         plants.Plant.__init__(self, id_number, the_world, position, tile_fertility)
         self.species = 'Grass'
-        self.appearance = np.copy(Grass.class_appearance)
         self.grow_rate = config.Grass.grow_rate
+
+        self.rgb = np.array([90., 160., 80.]) / 255
+        self.appearance = np.concatenate((np.ones(10)*self.rgb[0], np.ones(10)*self.rgb[1], np.ones(10)*self.rgb[2]))
+        self.appearance += np.random.uniform(-0.02, 0.02, size=30)
 
     ############################################################################################################
     def next_turn(self):

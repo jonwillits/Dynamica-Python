@@ -44,7 +44,7 @@ class NervousSystem:
 
         # variables for keeping track of the error at each time step
         self.neural_network_prediction_cost = None
-        self.neural_network_drive_cost = None
+        self.neural_network_drive_costs = None
         self.total_cost = None
 
         # this is the information for how the input and output layers are broken down
@@ -61,7 +61,6 @@ class NervousSystem:
         self.last_h_indexes = None
 
         # these are for the sensory processing
-        self.tile_rep_size = 4 * config.World.appearance_size
         self.view_list = None
         self.sensory_matrix = None
         self.sensory_array = None
@@ -93,10 +92,10 @@ class NervousSystem:
         # initialize the layer sizes
         self.h_size = self.animal.phenotype.trait_value_dict['Num Hidden Neurons']
 
-        self.s_size = 5 * 4 * config.World.appearance_size
+        self.s_size = 5 * 4 * 30
         self.d_size = self.animal.drive_system.num_drives
         self.a_size = self.animal.action_system.num_actions
-        self.aa_size = config.World.appearance_size
+        self.aa_size = 30
 
         self.input_size = self.s_size + self.d_size + self.a_size + self.aa_size + self.h_size
 
@@ -145,6 +144,12 @@ class NervousSystem:
         self.neural_hidden_state = np.random.normal(0, 0.001, self.h_size)
         self.neural_input_state = np.ones(self.input_size) * 0.5
         self.neural_output_state = np.ones(self.output_size) * 0.5
+
+        # initialize cost values for record keeping
+        self.neural_network_prediction_cost = np.zeros(self.output_size)
+        self.neural_network_drive_costs = []
+        for i in range(self.animal.drive_system.num_drives):
+            self.neural_network_drive_costs.append((np.zeros(self.output_size), np.zeros(self.output_size)))
 
     ############################################################################################################
     def update_sensory_state(self):
@@ -219,12 +224,12 @@ class NervousSystem:
                 animal = self.animal.the_world.map[x, y].animal_list[0]
                 animal_appear_len = len(animal.appearance)
 
-                if animal_appear_len < config.World.appearance_size:
+                if animal_appear_len < 30:
                     animal_appearance = np.copy(terrain_appearance).astype(float)
                     for i in range(animal_appear_len):
                         animal_appearance[i] = animal.appearance[i]
-                elif animal_appear_len > config.World.appearance_size:
-                    animal_appearance = animal.appearance[:config.World.appearance_size]
+                elif animal_appear_len > 30:
+                    animal_appearance = animal.appearance[:30]
                 else:
                     animal_appearance = animal.appearance
             else:
@@ -243,10 +248,10 @@ class NervousSystem:
                 object_appearance = terrain_appearance
 
         else:
-            terrain_appearance = np.ones([config.World.appearance_size]) * 0.5
-            animal_appearance = np.ones([config.World.appearance_size]) * 0.5
-            plant_appearance = np.ones([config.World.appearance_size]) * 0.5
-            object_appearance = np.ones([config.World.appearance_size]) * 0.5
+            terrain_appearance = np.ones([30]) * 0.5
+            animal_appearance = np.ones([30]) * 0.5
+            plant_appearance = np.ones([30]) * 0.5
+            object_appearance = np.ones([30]) * 0.5
 
         tile_representation_list.append(terrain_appearance)
         tile_representation_list.append(animal_appearance)
@@ -325,8 +330,10 @@ class NervousSystem:
         self.neural_network.backpropogation(self.neural_input_state, y_predicted, self.neural_hidden_state,
                                             self.neural_network_prediction_cost, self.p_learning_rate)
 
+        self.neural_network_drive_costs = []
         for i in range(self.animal.drive_system.num_drives):
             drive_value_cost_array, drive_change_cost_array = self.calculate_drive_costs(i)
+            self.neural_network_drive_costs.append((drive_value_cost_array, drive_change_cost_array))
             drive_value_learning_rate = self.drive_reinforcement_rate_matrix[0, i]
             drive_change_learning_rate = self.drive_reinforcement_rate_matrix[1, i]
 

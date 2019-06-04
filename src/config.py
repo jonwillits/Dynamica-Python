@@ -12,9 +12,6 @@ class GlobalOptions:
 class World:
     num_rows = 15  # rows x grid size-1 must be < window_height
     num_columns = 15  # columns x grid size-1 must be < window_width
-    grid_size = 32  # the width and height of each grid square (in pixels). I wouldnt change this, not tested...
-    appearance_size = 30  # this is the size of the appearance vector generated for each thing
-
 
 ############################################################################################################
 class Terrain:

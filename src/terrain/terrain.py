@@ -22,15 +22,7 @@ class Tile:
         output_string = "{} - Animals: {}".format(self.terrain_type, len(self.animal_list))
         return output_string
 
-    ############################################################################################################
     def init_terrain(self):
-        for i in range(config.World.appearance_size):
-            if random.random() < config.Terrain.appearance_variance:
-                if self.appearance[i] == 0:
-                    self.appearance[i] = 1
-                else:
-                    self.appearance[i] = 0
-
         self.fertility = config.Terrain.fertility_dict[self.terrain_type]
 
 

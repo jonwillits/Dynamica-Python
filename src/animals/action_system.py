@@ -12,6 +12,7 @@ class ActionSystem:
         self.action_list = None  # the list of actions available
         self.action_index_dict = None  # an index dict for all actions
 
+        self.action_outputs = None   # the output layer action activations of the neural network
         self.legal_action_array = None  # a binary array stating which actions are legal on the current turn
         self.gated_action_activations = None  # previous 2 multiplied together, zeroing out activity of illegal actions
         self.legal_action_prob_distribution = None  # previous turned into a prob distribution
@@ -55,7 +56,8 @@ class ActionSystem:
             self.num_actions += 1
 
         self.action_choice_array = np.ones([self.num_actions], float) * 0.5
-        self.action_argument_choice_array = np.ones([config.World.appearance_size], float) * 0.5
+        self.action_argument_choice_array = np.ones([30], float) * 0.5
+        self.action_outputs = np.ones([30], float) * 0.5
 
     ############################################################################################################
     def action_turn(self):
@@ -71,6 +73,8 @@ class ActionSystem:
             a_act = self.animal.nervous_system.action_outputs + noise
         else:
             a_act = action_outputs + noise
+
+        self.action_outputs = a_act
 
         for i in range(len(a_act)):
             if a_act[i] > 1.0:
@@ -253,12 +257,12 @@ class ActionSystem:
         self.animal.drive_system.drive_value_array[defender.drive_system.drive_index_dict['Health']] -= damage_to_attacker
         attacker_end_health = self.animal.drive_system.drive_value_array[defender.drive_system.drive_index_dict['Health']]
 
-        if defender.num_visible_features < config.World.appearance_size:
-            self.action_argument_choice_array = np.zeros([config.World.appearance_size])
+        if defender.num_visible_features < 30:
+            self.action_argument_choice_array = np.zeros([30])
             for i in range(defender.num_visible_features):
                 self.action_argument_choice_array[i] = defender.appearance[i]
-        elif defender.num_visible_features > config.World.appearance_size:
-            self.action_argument_choice_array = defender.appearance[:config.World.appearance_size]
+        elif defender.num_visible_features > 30:
+            self.action_argument_choice_array = defender.appearance[:30]
         else:
             self.action_argument_choice_array = defender.appearance
 
@@ -337,7 +341,7 @@ class ActionSystem:
         else:
             energy_gain = 0
             patient = 'none'
-            self.action_argument_choice_array = np.zeros([config.World.appearance_size])
+            self.action_argument_choice_array = np.zeros([30])
             eat_quantity = 0
 
         self.animal.drive_system.drive_value_array[self.animal.drive_system.drive_index_dict['Energy']] += energy_gain
@@ -375,12 +379,12 @@ class ActionSystem:
                                 partner.get_pregnant(self.animal.genome)
                                 new_pregnancy = True
 
-        if partner.num_visible_features < config.World.appearance_size:
-            self.action_argument_choice_array = np.zeros([config.World.appearance_size])
+        if partner.num_visible_features < 30:
+            self.action_argument_choice_array = np.zeros([30])
             for i in range(partner.num_visible_features):
                 self.action_argument_choice_array[i] = partner.appearance[i]
-        elif partner.num_visible_features > config.World.appearance_size:
-            self.action_argument_choice_array = partner.appearance[:config.World.appearance_size]
+        elif partner.num_visible_features > 30:
+            self.action_argument_choice_array = partner.appearance[:30]
         else:
             self.action_argument_choice_array = partner.appearance
 

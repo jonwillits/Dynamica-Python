@@ -1,5 +1,6 @@
 from src.objects import world_object
 from src import config
+import random
 
 
 class Carcass(world_object.WorldObject):
@@ -19,13 +20,9 @@ class Carcass(world_object.WorldObject):
 
     ############################################################################################################
     def init_appearance(self):
-        if len(self.appearance) < 10:
-            num_dead_bits = 3
-        else:
-            num_dead_bits = 5
-
-        for i in range(num_dead_bits):
-            self.appearance[-i] = 0.666
+        for i in range(len(self.appearance)):
+            if random.random() < 0.25:
+                self.appearance[-i] = 0.666
 
     ############################################################################################################
     def next_turn(self):

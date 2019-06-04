@@ -1,9 +1,5 @@
-from src import config
-import random
 
 
-############################################################################################################
-############################################################################################################
 class Plant:
     ############################################################################################################
     def __init__(self, id_number, the_world, position, tile_fertility):
@@ -27,14 +23,6 @@ class Plant:
     def init_plant(self):
 
         self.quantity = 100 * self.tile_fertility
-
-        for i in range(config.World.appearance_size):
-            if random.random() < config.Plant.appearance_variance:
-                if self.appearance[i] == 0:
-                    self.appearance[i] = 1
-                else:
-                    self.appearance[i] = 0
-
         self.appearance[0] = self.quantity / 100
 
     ############################################################################################################
@@ -42,7 +30,4 @@ class Plant:
         self.age += 1
         self.appearance[0] = self.quantity / 100
 
-
-############################################################################################################
-############################################################################################################
 
