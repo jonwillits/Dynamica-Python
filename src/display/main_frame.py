@@ -1,5 +1,5 @@
 import tkinter as tk
-from src.display import grid_info_window
+from src.display import tile_info_window
 
 
 class MainFrame(tk.Frame):
@@ -48,12 +48,10 @@ class MainFrame(tk.Frame):
     ############################################################################################################
     def show_tile_click_info(self, x, y):
         grid_x, grid_y = self.get_grid_coordinates(x, y)
-        # if 0 <= grid_x <= self.display.num_columns - 1:
-        #     if 0 <= grid_y <= self.display.num_rows - 1:
         if self.tile_info_window is not None:
             self.tile_info_window.destroy()
         self.tile_info_window = tk.Toplevel(self.display.root)
-        self.tile_info_window_instance = grid_info_window.GridInfoWindow(self.tile_info_window,
+        self.tile_info_window_instance = tile_info_window.TileInfoWindow(self.display, self.tile_info_window,
                                                                          self.display.the_world,
                                                                          (grid_x, grid_y))
 
