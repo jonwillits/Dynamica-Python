@@ -7,8 +7,7 @@ class PhenotypeWindow:
     def __init__(self, phenotype_window, animal):
 
         def on_configure(event):
-            # update scrollregion after starting 'mainloop'
-            # when all widgets are in canvas
+            # update the scrollregion when everything is placed in the canvas
             self.canvas.configure(scrollregion=self.canvas.bbox('all'))
 
         self.root = phenotype_window
@@ -21,42 +20,22 @@ class PhenotypeWindow:
         self.width = biggest*5 + 50
         self.height = 800
 
-        # --- create canvas with scrollbar ---
-
+        # create the canvas and scrollbar
         self.canvas = tk.Canvas(self.root, height=self.height, width=self.width)
         self.canvas.pack(side=tk.LEFT)
 
         self.scrollbar = tk.Scrollbar(self.root, command=self.canvas.yview)
         self.scrollbar.pack(side=tk.LEFT, fill='y')
 
+        # call the configure function
         self.canvas.configure(yscrollcommand=self.scrollbar.set)
-
-        # update scrollregion after starting 'mainloop'
-        # when all widgets are in canvas
         self.canvas.bind('<Configure>', on_configure)
 
-        # --- put frame in canvas ---
-
+        # put frame in canvas
         self.frame = tk.Frame(self.canvas, height=self.height, width=self.width)
         self.canvas.create_window((0, 0), window=self.frame, anchor='nw')
 
-        # --- add widgets in frame ---
-        #
-        # l = tk.Label(self.frame, text="Hello", font="-size 50")
-        # l.pack()
-        #
-        # l = tk.Label(self.frame, text="World", font="-size 50")
-        # l.pack()
-        #
-        # the_text = "Test text 1\nTest text 2\nTest text 3\nTest text 4\nTest text 5\nTest text 6\nTest text 7\nTest text 8\nTest text 9"
-        # the_text += the_text
-        # the_text += the_text
-        #
-        # l = tk.Label(self.frame,
-        #              text=the_text,
-        #              font="-size 20")
-        # l.pack()
-
+        # add content to frame
         for i in range(self.animal.phenotype.num_traits):
             name = self.animal.genome.gene_label_list[i]
             mutable = self.animal.genome.gene_dict[name].mutable
