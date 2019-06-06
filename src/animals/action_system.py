@@ -23,6 +23,9 @@ class ActionSystem:
         self.action_argument_outputs = None
         self.action_argument_choice_array = None
 
+        self.action_history_string = None
+        self.action_history_list = None
+
         self.action_drive_change_dict = config.Animal.action_drive_change_dict
 
         self.init_actions()
@@ -36,11 +39,11 @@ class ActionSystem:
 
         for i in range(self.num_actions):
             output_string += "    {:12s}: {:0.3f}  {}  {:0.3f}  {:0.3f}  {}\n".format(self.action_list[i],
-                                                                                     action_outputs[i],
-                                                                                     self.legal_action_array[i],
-                                                                                     self.gated_action_activations[i],
-                                                                                     self.legal_action_prob_distribution[i],
-                                                                                     self.action_choice_array[i])
+                                                                                      action_outputs[i],
+                                                                                      self.legal_action_array[i],
+                                                                                      self.gated_action_activations[i],
+                                                                                      self.legal_action_prob_distribution[i],
+                                                                                      self.action_choice_array[i])
         return output_string
 
     ############################################################################################################
@@ -49,6 +52,7 @@ class ActionSystem:
         self.num_actions = 0
         self.action_list = []
         self.action_index_dict = {}
+        self.action_history_list = []
 
         for action in self.action_drive_change_dict:
             self.action_list.append(action)
@@ -76,6 +80,9 @@ class ActionSystem:
 
         self.action_outputs = a_act
 
+        self.action_history_string = "Turn {}\n".format(self.animal.the_world.current_turn)
+        self.action_history_string += "Output Activations: {}\n".format(np.array2string(a_act))
+
         for i in range(len(a_act)):
             if a_act[i] > 1.0:
                 a_act[i] = 1.0
@@ -83,6 +90,7 @@ class ActionSystem:
         self.legal_action_array = self.get_legal_action_array()
         self.gated_action_activations = a_act * self.legal_action_array
         self.legal_action_prob_distribution = self.gated_action_activations / self.gated_action_activations.sum()
+        self.action_history_string += "Output Activations: {}\n".format(np.array2string(self.legal_action_prob_distribution))
 
         if config.Debug.action_system:
             print("\n{} {} Legal Action Probabilities".format(self.animal.species, self.animal.id_number))
@@ -163,6 +171,9 @@ class ActionSystem:
 
     ############################################################################################################
     def take_action(self):
+        self.action_history_string = "Turn {}: Action-{}\n".format(self.animal.the_world.current_turn,
+                                                                   self.action_choice)
+
         if self.action_choice == 'Rest':
             self.rest()
         elif self.action_choice == 'Move':
@@ -180,8 +191,10 @@ class ActionSystem:
     def rest(self):
         self.action_argument_choice_array = self.animal.nervous_system.action_argument_outputs
 
+        self.action_history_list.append(self.action_history_string)
+
         if config.Debug.action_system:
-            print("\n{} {} Action: Rest\n".format(self.animal.species, self.animal.id_number))
+            print("\n", self.animal.species, self.animal.id_number, self.action_history_string)
 
     ############################################################################################################
     def move(self):
@@ -207,11 +220,13 @@ class ActionSystem:
 
         self.action_argument_choice_array = self.animal.nervous_system.action_argument_outputs
 
+        self.action_history_string += "    Old Position: {} {}\n".format(x, y)
+        self.action_history_string += "    Orientation: {}\n".format(self.animal.orientation)
+        self.action_history_string += "    New Position: {} {}".format(self.animal.position[0], self.animal.position[1])
+        self.action_history_list.append(self.action_history_string)
+
         if config.Debug.action_system:
-            print("\n{} {} Action: Move".format(self.animal.species, self.animal.id_number))
-            print("    Old Position:", x, y)
-            print("    Orientation:", self.animal.orientation)
-            print("    New Position:", self.animal.position[0], self.animal.position[1], "\n")
+            print("\n" + self.action_history_string + "\n")
 
     ############################################################################################################
     def turn(self):
@@ -233,10 +248,12 @@ class ActionSystem:
 
         self.action_argument_choice_array = self.animal.nervous_system.action_argument_outputs
 
+        self.action_history_string += "    Turn Amount Mod: {}\n".format(turn_amount_mod)
+        self.action_history_string += "    Orientation: {} to {}".format(old_orientation, self.animal.orientation)
+        self.action_history_list.append(self.action_history_string)
+
         if config.Debug.action_system:
-            print("\n{} {} Action: Turn".format(self.animal.species, self.animal.id_number))
-            print("    Turn Amount Mod:", turn_amount_mod)
-            print("    Orientation:", old_orientation, self.animal.orientation, "\n")
+            print("\n" + self.action_history_string + "\n")
 
     ############################################################################################################
     def attack(self):
@@ -266,23 +283,23 @@ class ActionSystem:
         else:
             self.action_argument_choice_array = defender.appearance
 
+        self.action_history_string += "    {} {} Attack!\n".format(self.animal.species, self.animal.id_number)
+        self.action_history_string += "    Attacker: {} {}   ".format(self.animal.species, self.animal.id_number)
+        self.action_history_string += "Size: {:0.3f}    Attack Strength: {}\n".format(self.animal.current_size,
+                                                                                      attacker_strength)
+        self.action_history_string += "    Defender: {} {}   ".format(defender.species, defender.id_number)
+        self.action_history_string += "Size: {:0.3f}    Attack Strength: {}\n".format(defender.current_size,
+                                                                                      defender_strength)
+        self.action_history_string += "    Attacker dealt {} damage, ".format(damage_to_defender)
+        self.action_history_string += "Defender health {} to {}\n".format(defender_start_health,
+                                                                          defender_end_health)
+        self.action_history_string += "    Defender dealt {} damage, ".format(damage_to_attacker)
+        self.action_history_string += "Attacker health {} to {}".format(attacker_start_health,
+                                                                        attacker_end_health)
+        self.action_history_list.append(self.action_history_string)
+
         if config.Debug.action_system:
-            print("\n{} {} Action: Attack!".format(self.animal.species, self.animal.id_number))
-            print("    {} {} Attack!".format(self.animal.species, self.animal.id_number))
-            print("    Attacker: {} {}   Size: {:0.3f}    Attack Strength: {}".format(self.animal.species,
-                                                                                      self.animal.id_number,
-                                                                                      self.animal.current_size,
-                                                                                      attacker_strength))
-            print("    Defender: {} {}   Size: {:0.3f}    Attack Strength: {}".format(defender.species,
-                                                                                      defender.id_number,
-                                                                                      defender.current_size,
-                                                                                      defender_strength))
-            print("    Attacker dealt {} damage, defender health {} to {}".format(damage_to_defender,
-                                                                                  defender_start_health,
-                                                                                  defender_end_health))
-            print("    Defender dealt {} damage, attacker health {} to {}\n".format(damage_to_attacker,
-                                                                                  attacker_start_health,
-                                                                                  attacker_end_health))
+            print("\n" + self.action_history_string + "\n")
 
     ############################################################################################################
     def eat(self):
@@ -348,15 +365,28 @@ class ActionSystem:
         if self.animal.drive_system.drive_value_array[self.animal.drive_system.drive_index_dict['Energy']] > 1.0:
             self.animal.drive_system.drive_value_array[self.animal.drive_system.drive_index_dict['Energy']] = 1.0
 
+        end_energy = self.animal.drive_system.drive_value_array[self.animal.drive_system.drive_index_dict['Energy']]
+
+        self.action_history_string += "    Plants: Qty={} Energy={}={}*{}*{}*{}\n".format(len(local_plant_list),
+                                                                                          plant_energy_value,
+                                                                                          plant_quantity,
+                                                                                          config.Animal.plant_energy,
+                                                                                          digest_plants,
+                                                                                          (1 - sharp_teeth))
+        self.action_history_string += "    Meat: Qty={} Energy={}={}*{}*{}*{}\n".format(len(local_object_list),
+                                                                                        object_energy_value,
+                                                                                        meat_quantity,
+                                                                                        config.Animal.meat_energy,
+                                                                                        digest_meat,
+                                                                                        sharp_teeth)
+        self.action_history_string += "    Patient: {} {}\n".format(patient, eat_quantity)
+        self.action_history_string += "    Energy from {} to {}, Gain: {}".format(start_energy,
+                                                                                  end_energy,
+                                                                                  energy_gain)
+        self.action_history_list.append(self.action_history_string)
+
         if config.Debug.action_system:
-            print("\n{} {} Action: Eat".format(self.animal.species, self.animal.id_number))
-            print("    Start Energy:", start_energy)
-            print("    Plants:", len(local_plant_list), plant_energy_value, plant_quantity, config.Animal.plant_energy, digest_plants, (1 - sharp_teeth))
-            print("    Object:", len(local_object_list), object_energy_value, meat_quantity, config.Animal.meat_energy, digest_meat, sharp_teeth)
-            print("    Patient:", patient, eat_quantity)
-            print("    Energy Gain:", energy_gain)
-            print("    End Energy:", self.animal.drive_system.drive_value_array[self.animal.drive_system.drive_index_dict['Energy']])
-            print("\n")
+            print("\n" + self.action_history_string + "\n")
 
     ############################################################################################################
     def procreate(self):
@@ -365,17 +395,24 @@ class ActionSystem:
         new_pregnancy = False
         prob = random.random()
 
+        agent_sex = self.animal.phenotype.trait_value_dict['Sex']
+        partner_sex = partner.phenotype.trait_value_dict['Sex']
+        agent_pregnant = self.animal.pregnant
+        partner_pregnant = partner.pregnant
+        agent_age = self.animal.age
+        partner_age = partner.age
+
         if self.animal.species == partner.species:
-            if self.animal.phenotype.trait_value_dict['Sex'] != partner.phenotype.trait_value_dict['Sex']:
+            if agent_sex != partner_sex:
                 if prob < config.Animal.pregnancy_chance:
-                    if self.animal.phenotype.trait_value_dict['Sex'] == 1:
-                        if self.animal.age >= config.Animal.childhood_length:
-                            if self.animal.pregnant == 0:
+                    if agent_sex == 1:
+                        if agent_age >= config.Animal.childhood_length:
+                            if agent_pregnant == 0:
                                 self.animal.get_pregnant(partner.genome)
                                 new_pregnancy = True
-                    if partner.phenotype.trait_value_dict['Sex'] == 1:
-                        if partner.age >= config.Animal.childhood_length:
-                            if partner.pregnant == 0:
+                    if partner_sex == 1:
+                        if partner_age >= config.Animal.childhood_length:
+                            if partner_pregnant == 0:
                                 partner.get_pregnant(self.animal.genome)
                                 new_pregnancy = True
 
@@ -388,17 +425,16 @@ class ActionSystem:
         else:
             self.action_argument_choice_array = partner.appearance
 
+        self.action_history_string += "    Sex: {}  Age: {}  Pregnant: {}\n".format(agent_sex, agent_age,
+                                                                                    agent_pregnant)
+        self.action_history_string += "    Partner {} {}\n".format(partner.species, partner.id_number)
+        self.action_history_string += "Sex: {}  Partner Age: {}  Partner Pregnant: {}\n".format(partner_sex,
+                                                                                                partner_age,
+                                                                                                partner_pregnant)
+        self.action_history_string += "    Prob & Threshold: {}-{}\n".format(prob, config.Animal.pregnancy_chance)
+        self.action_history_string += "    New Pregnancy: {}".format(new_pregnancy)
+
+        self.action_history_list.append(self.action_history_string)
+
         if config.Debug.action_system:
-            print("\n{} {} Action: Procreate".format(self.animal.species, self.animal.id_number))
-            print("    Animal:", self.animal.species,
-                  self.animal.id_number,
-                  self.animal.phenotype.trait_value_dict['Sex'],
-                  self.animal.age,
-                  partner.pregnant)
-            print("    Partner:", partner.species,
-                  partner.id_number,
-                  partner.phenotype.trait_value_dict['Sex'],
-                  partner.age,
-                  partner.pregnant)
-            print("    Prob & Threshold:", prob, config.Animal.pregnancy_chance)
-            print("    New Pregnancy: ", new_pregnancy, "\n")
+            print("\n" + self.action_history_string + "\n")

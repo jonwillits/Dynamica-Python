@@ -3,7 +3,7 @@ import numpy as np
 
 
 class PhenotypeWindow:
-
+    ############################################################################################################
     def __init__(self, phenotype_window, animal):
 
         def on_configure(event):
@@ -15,8 +15,7 @@ class PhenotypeWindow:
         self.animal = animal
         self.root.title("{} {} Genotype & Phenotype".format(self.animal.species, self.animal.id_number))
 
-        biggest = self.get_biggest()
-        print(biggest)
+        biggest = self.get_biggest_label_size()
         self.width = biggest*5 + 50
         self.height = 800
 
@@ -35,42 +34,51 @@ class PhenotypeWindow:
         self.frame = tk.Frame(self.canvas, height=self.height, width=self.width)
         self.canvas.create_window((0, 0), window=self.frame, anchor='nw')
 
+        self.name_label = None
+        self.trait_info_label = None
+        self.gene_sequence_label = None
+
         # add content to frame
         for i in range(self.animal.phenotype.num_traits):
-            name = self.animal.genome.gene_label_list[i]
-            mutable = self.animal.genome.gene_dict[name].mutable
-            visible = self.animal.genome.gene_dict[name].visible
-            trait_value = self.animal.phenotype.trait_value_dict[name]
-            gene_size = self.animal.genome.gene_dict[name].size
-            sequence = self.animal.genome.gene_dict[name].sequence
+            self.add_trait_to_window(i)
 
-            trait_string = "Trait Name: {}".format(name)
-            self.name_value_label = tk.Label(self.frame, text=trait_string,
-                                             font="Verdana 11 bold", anchor=tk.NW,
-                                             justify=tk.LEFT, width=self.width, bd=0, padx=10, pady=0)
-            self.name_value_label.pack(fill=tk.X)
+    ############################################################################################################
+    def add_trait_to_window(self, i):
+        name = self.animal.genome.gene_label_list[i]
+        mutable = self.animal.genome.gene_dict[name].mutable
+        visible = self.animal.genome.gene_dict[name].visible
+        trait_value = self.animal.phenotype.trait_value_dict[name]
+        gene_size = self.animal.genome.gene_dict[name].size
+        sequence = self.animal.genome.gene_dict[name].sequence
 
-            trait_string = "Trait Value: {}    Mutable: {}     Visible: {}".format(round(trait_value, 5),
-                                                                                     mutable, visible)
-            self.name_value_label = tk.Label(self.frame, text=trait_string,
-                                             font="Verdana 11", anchor=tk.NW,
-                                             justify=tk.LEFT, width=self.width, bd=0, padx=10, pady=0)
-            self.name_value_label.pack(fill=tk.X)
+        trait_string = "Trait Name: {}".format(name)
+        self.name_label = tk.Label(self.frame, text=trait_string,
+                                   font="Verdana 11 bold", anchor=tk.NW,
+                                   justify=tk.LEFT, width=self.width, bd=0, padx=10, pady=0)
+        self.name_label.pack(fill=tk.X)
 
-            if gene_size > 0:
-                sequence_matrix = sequence.reshape(gene_size, 9)
-                sequence_string = ""
-                for j in range(sequence_matrix.shape[0]):
-                    sequence_string += np.array2string(sequence_matrix[j, :]) + " "
-            else:
-                sequence_string = np.array2string(sequence)
+        trait_string = "Trait Value: {}    Mutable: {}     Visible: {}".format(round(trait_value, 5),
+                                                                               mutable, visible)
+        self.trait_info_label = tk.Label(self.frame, text=trait_string,
+                                         font="Verdana 11", anchor=tk.NW,
+                                         justify=tk.LEFT, width=self.width, bd=0, padx=10, pady=0)
+        self.trait_info_label.pack(fill=tk.X)
 
-            self.gene_sequence_label = tk.Label(self.frame, text=sequence_string+"\n",
-                                                font="Verdana 11", anchor=tk.W,
-                                                justify=tk.LEFT, width=self.width, bd=0, padx=10, pady=0)
-            self.gene_sequence_label.pack(fill=tk.X)
+        if gene_size > 0:
+            sequence_matrix = sequence.reshape(gene_size, 9)
+            sequence_string = ""
+            for j in range(sequence_matrix.shape[0]):
+                sequence_string += np.array2string(sequence_matrix[j, :]) + " "
+        else:
+            sequence_string = np.array2string(sequence)
 
-    def get_biggest(self):
+        self.gene_sequence_label = tk.Label(self.frame, text=sequence_string + "\n",
+                                            font="Verdana 11", anchor=tk.W,
+                                            justify=tk.LEFT, width=self.width, bd=0, padx=10, pady=0)
+        self.gene_sequence_label.pack(fill=tk.X)
+
+    ############################################################################################################
+    def get_biggest_label_size(self):
         biggest = 0
         for i in range(self.animal.phenotype.num_traits):
             name = self.animal.genome.gene_label_list[i]

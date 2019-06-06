@@ -151,6 +151,8 @@ class World:
         else:
             animal.position = [position[0], position[1]]
             self.map[(position[0], position[1])].animal_list.append(animal)
+        animal.action_system.action_history_list.append("Turn 0: Placed in {}  Orientation: {}".format(animal.position,
+                                                                                                       animal.orientation))
 
     ############################################################################################################
     def generate_objects(self):

@@ -1,5 +1,5 @@
 import tkinter as tk
-from src.display import phenotype_window
+from src.display import phenotype_window, action_window, neural_network_window
 
 
 class TileInfoWindow:
@@ -162,22 +162,25 @@ class TileInfoWindow:
             self.animal_text_label8 = tk.Label(self.animal_frame, text=label_string, font="Courier 11", anchor=tk.W)
             self.animal_text_label8.place(x=180, y=100)
 
-            self.phenotype_label = tk.Label(self.animal_frame, text='View Phenotype', font="Courier 11 bold",
-                                            anchor=tk.W)
+            self.phenotype_label = tk.Label(self.animal_frame, text='View Phenotype',
+                                            font="Courier 11 bold", anchor=tk.W, relief='raised',
+                                            bd=5, padx=10, pady=5)
             self.phenotype_label.place(x=30, y=145)
-            self.phenotype_label.bind('<Double-Button-1>',
+            self.phenotype_label.bind('<Button-1>',
                                       lambda event, arg=animal: self.view_phenotype_on_double_click(event, arg))
 
-            self.action_label = tk.Label(self.animal_frame, text='View Action System', font="Courier 11 bold",
-                                         anchor=tk.W)
-            self.action_label.place(x=30, y=165)
-            self.action_label.bind('<Double-Button-1>',
+            self.action_label = tk.Label(self.animal_frame, text='View Action System',
+                                         font="Courier 11 bold", anchor=tk.W, relief='raised',
+                                         bd=5, padx=10, pady=5)
+            self.action_label.place(x=30, y=185)
+            self.action_label.bind('<Button-1>',
                                    lambda event, arg=animal: self.view_actions_on_double_click(event, arg))
 
-            self.neural_network_label = tk.Label(self.animal_frame, text='View Neural Network', font="Courier 11 bold",
-                                                 anchor=tk.W)
-            self.neural_network_label.place(x=30, y=185)
-            self.neural_network_label.bind('<Double-Button-1>',
+            self.neural_network_label = tk.Label(self.animal_frame, text='View Neural Network',
+                                                 font="Courier 11 bold", anchor=tk.W, relief='raised',
+                                                 bd=5, padx=10, pady=5)
+            self.neural_network_label.place(x=30, y=225)
+            self.neural_network_label.bind('<Button-1>',
                                            lambda event, arg=animal: self.view_neural_network_on_double_click(event,
                                                                                                               arg))
 
@@ -188,8 +191,11 @@ class TileInfoWindow:
 
     ############################################################################################################
     def view_actions_on_double_click(self, event, animal):
-        pass
+        self.action_window = tk.Toplevel(self.display.root)
+        self.action_window_instance = action_window.ActionWindow(self.action_window, animal)
 
     ############################################################################################################
     def view_neural_network_on_double_click(self, event, animal):
-        pass
+        self.neural_network_window = tk.Toplevel(self.display.root)
+        self.neural_network_window_instance = neural_network_window.NeuralNetworkWindow(self.neural_network_window,
+                                                                                        animal)
