@@ -30,8 +30,8 @@ class Lion(animals.Animal):
                        'Digest Meat': (2, 'float', (1.0, 0.0), 'mutable', 'invisible'),
                        'Sharp Teeth': (2, 'float', (1.0, 0.0), 'mutable', 'visible'),
 
-                       'Num Hidden Neurons': (3, 'int', None, 'mutable', 'invisible'),
-                       'Weight Init Stdev': (3, 'float', None, 'mutable', 'invisible'),
+                       'Num Hidden Neurons': (3, 'int', (100, 20), 'mutable', 'invisible'),
+                       'Weight Init Stdev': (4, 'float', (.01, .10), 'mutable', 'invisible'),
                        'Prediction Learning Rate': (4, 'float', None, 'mutable', 'invisible'),
                        'Health Value Target': (2, 'float', (1.0, 0.0), 'immutable', 'invisible'),
                        'Energy Value Target': (2, 'float', (1.0, 0.0), 'immutable', 'invisible'),
