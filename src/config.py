@@ -10,8 +10,9 @@ class GlobalOptions:
 
 ############################################################################################################
 class World:
-    num_rows = 15  # rows x grid size-1 must be < window_height
-    num_columns = 15  # columns x grid size-1 must be < window_width
+    num_rows = 30  # rows x grid size-1 must be < window_height
+    num_columns = 30  # columns x grid size-1 must be < window_width
+
 
 ############################################################################################################
 class Terrain:
@@ -74,12 +75,12 @@ class Animal:
 
 ############################################################################################################
 class Lion:
-    start_number = 4
+    start_number = 20
 
 
 ############################################################################################################
 class Zebra:
-    start_number = 4
+    start_number = 30
 
 
 ############################################################################################################

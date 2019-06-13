@@ -133,12 +133,8 @@ class SummaryFrame(tk.Frame):
         if self.display.species_summary_window is not None:
             self.display.species_summary_window.destroy()
         self.display.species_summary_window = tk.Toplevel(self.display.root)
-        self.species_summary_window_instance = species_info_window.SpeciesInfoWindow(self.display.species_summary_window,
+        self.species_summary_window_instance = species_info_window.SpeciesInfoWindow(self.display,
+                                                                                     self.display.species_summary_window,
                                                                                      self.display.the_world, species,
                                                                                      self.display.image_dict)
 
-############################################################################################################
-class AnimalSummary:
-
-    def __init__(self):
-        pass
