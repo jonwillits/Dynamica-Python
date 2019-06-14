@@ -5,6 +5,8 @@ import numpy as np
 class DriveSystem:
     ############################################################################################################
     def __init__(self, animal):
+        self.debug = False
+
         self.animal = animal
         self.num_drives = None
         self.drive_list = None
@@ -12,7 +14,6 @@ class DriveSystem:
         self.drive_value_array = None
         self.last_drive_value_array = None
 
-        self.drive_init_dict = config.Animal.drive_init_dict
         self.action_drive_change_dict = config.Animal.action_drive_change_dict
 
         self.init_drives()
@@ -26,24 +27,22 @@ class DriveSystem:
 
     ############################################################################################################
     def init_drives(self):
-        self.num_drives = len(self.drive_init_dict)
 
+        self.num_drives = 0
         self.drive_list = []
         self.drive_index_dict = {}
+
+        rest_drives = config.Animal.action_drive_change_dict['Rest']
+        for drive in rest_drives:
+            self.drive_list.append(drive)
+            self.drive_index_dict[drive] = self.num_drives
+            self.num_drives += 1
 
         self.drive_value_array = np.ones([self.num_drives], float)
         self.last_drive_value_array = np.ones([self.num_drives], float)
 
-        i = 0
-        for drive in self.drive_init_dict:
-            self.drive_list.append(drive)
-            self.drive_index_dict[drive] = i
-            self.drive_value_array[i] = self.drive_init_dict[drive]
-            self.last_drive_value_array[i] = self.drive_init_dict[drive]
-            i += 1
-
     ############################################################################################################
-    def update_drives(self, action_choice, debug=False):
+    def update_drives(self, action_choice):
 
         self.last_drive_value_array = np.copy(self.drive_value_array)
 
@@ -75,7 +74,7 @@ class DriveSystem:
             if self.drive_value_array[i] > 1:
                 self.drive_value_array[i] = 1
 
-        if config.Debug.drive_system:
+        if self.debug:
             print("\nUpdate Drives")
             print("    Start Drives", self.last_drive_value_array)
             print("    Action Choice & Effect", action_choice, action_effect_dict)

@@ -9,7 +9,7 @@ class Grass(plants.Plant):
     def __init__(self, id_number, the_world, position, tile_fertility):
         plants.Plant.__init__(self, id_number, the_world, position, tile_fertility)
         self.species = 'Grass'
-        self.grow_rate = config.Grass.grow_rate
+        self.grow_rate = config.Plant.grow_rate
 
         self.rgb = np.array([90., 160., 80.]) / 255
         self.appearance = np.concatenate((np.ones(10)*self.rgb[0], np.ones(10)*self.rgb[1], np.ones(10)*self.rgb[2]))

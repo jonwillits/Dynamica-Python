@@ -14,16 +14,17 @@ class Display:
         self.turn = 0
         self.image_dict = None
         self.running = False
+        self.timing_freq = 0
 
-        self.num_rows = config.World.num_rows
-        self.num_columns = config.World.num_columns
+        self.num_rows = self.the_world.num_rows
+        self.num_columns = self.the_world.num_columns
         self.grid_size = 32
         self.world_height = None
         self.world_width = None
 
         self.root = None
-        self.root_height = config.GlobalOptions.window_height
-        self.root_width = config.GlobalOptions.window_width
+        self.root_height = 800
+        self.root_width = 1600
 
         self.main_frame = None
         self.main_canvas = None
@@ -145,8 +146,8 @@ class Display:
         self.root.update()
         self.display_timers_array[6] += time.time() - start_time
 
-        if config.GlobalOptions.timing_freq:
-            if self.turn % 100 == 0:
+        if self.timing_freq:
+            if self.turn % self.timing_freq == 0:
                 print("turn    WLD    obj    pla    ff1    act    dri    ff2    unn    grw    uap    pre    die    sum   | "
                       "DIS    wld    del    ter    obj    ani    sum    roo")
             if self.turn % config.GlobalOptions.timing_freq == 0:

@@ -74,7 +74,7 @@ class Genome:
                             child_nucleotide = 0
 
                 child_sequence[j] = child_nucleotide
-            child_gene = Gene(label, gene_type, size, child_sequence, mutable, visible)
+            child_gene = Gene(label, gene_type, size, child_sequence, mutable, visible, None)
 
             self.gene_label_list.append(label)
             self.gene_dict[label] = child_gene

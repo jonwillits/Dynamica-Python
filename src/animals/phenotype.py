@@ -77,6 +77,3 @@ class Phenotype:
                         value = current_sequence.sum()
                         final_value += value * 10**(-j-1)
                     self.trait_value_dict[label] = final_value
-
-
-

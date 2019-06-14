@@ -8,6 +8,8 @@ class NervousSystem:
     ############################################################################################################
     def __init__(self, animal):
         ############################################################################################################
+        self.debug = False
+
         self.animal = animal
         self.neural_network = None
 
@@ -213,7 +215,8 @@ class NervousSystem:
         tile_representation_list = []
         x = tile_location[0]
         y = tile_location[1]
-        if (x >= 0) and (y >= 0) and (x <= config.World.num_columns - 1) and (y <= config.World.num_rows - 1):
+        if (x >= 0) and (y >= 0) and (x <= self.animal.the_world.num_columns - 1) and (
+                y <= self.animal.the_world.num_rows - 1):
 
             # the appearance of the terrain
             terrain_appearance = self.animal.the_world.map[x, y].appearance
@@ -301,7 +304,7 @@ class NervousSystem:
         self.action_outputs = self.neural_output_state[self.a_indexes[0]:self.a_indexes[1] + 1]
         self.action_argument_outputs = self.neural_output_state[self.aa_indexes[0]:self.aa_indexes[1] + 1]
 
-        if config.Debug.nervous_system:
+        if self.debug:
             np.set_printoptions(suppress=True, precision=3, linewidth=1000, sign=' ',floatmode='maxprec')
             print("\n{} {} NN FF Sensory State:".format(self.animal.species, self.animal.id_number))
             print("    Position & Orientation:", self.animal.position, self.animal.orientation)

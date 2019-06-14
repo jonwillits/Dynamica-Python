@@ -1,5 +1,4 @@
 from src import config
-import random
 
 
 class Tile:
@@ -24,10 +23,3 @@ class Tile:
 
     def init_terrain(self):
         self.fertility = config.Terrain.fertility_dict[self.terrain_type]
-
-
-
-
-
-
-

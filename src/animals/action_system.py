@@ -6,6 +6,8 @@ import random
 class ActionSystem:
     ############################################################################################################
     def __init__(self, animal):
+        self.debug = False
+
         self.animal = animal
 
         self.num_actions = None  # the total number of actions available
@@ -92,7 +94,7 @@ class ActionSystem:
         self.legal_action_prob_distribution = self.gated_action_activations / self.gated_action_activations.sum()
         self.action_history_string += "Output Activations: {}\n".format(np.array2string(self.legal_action_prob_distribution))
 
-        if config.Debug.action_system:
+        if self.debug:
             print("\n{} {} Legal Action Probabilities".format(self.animal.species, self.animal.id_number))
             for i in range(self.num_actions):
                 print("    {:9s}: {:0.3f} {} {:0.3f} {:0.3f}".format(self.action_list[i],
@@ -150,7 +152,7 @@ class ActionSystem:
         self.action_choice_array = np.zeros([self.num_actions], float)
         self.action_choice_array[self.action_index_dict[self.action_choice]] = 1
 
-        if config.Debug.action_system:
+        if self.debug:
             print("\n{} {} Action Choice".format(self.animal.species, self.animal.id_number))
             print("    Action Choice Value", action_choice_number)
 
@@ -193,7 +195,7 @@ class ActionSystem:
 
         self.action_history_list.append(self.action_history_string)
 
-        if config.Debug.action_system:
+        if self.debug:
             print("\n", self.animal.species, self.animal.id_number, self.action_history_string)
 
     ############################################################################################################
@@ -225,7 +227,7 @@ class ActionSystem:
         self.action_history_string += "    New Position: {} {}".format(self.animal.position[0], self.animal.position[1])
         self.action_history_list.append(self.action_history_string)
 
-        if config.Debug.action_system:
+        if self.debug:
             print("\n" + self.action_history_string + "\n")
 
     ############################################################################################################
@@ -252,7 +254,7 @@ class ActionSystem:
         self.action_history_string += "    Orientation: {} to {}".format(old_orientation, self.animal.orientation)
         self.action_history_list.append(self.action_history_string)
 
-        if config.Debug.action_system:
+        if self.debug:
             print("\n" + self.action_history_string + "\n")
 
     ############################################################################################################
@@ -298,7 +300,7 @@ class ActionSystem:
                                                                         attacker_end_health)
         self.action_history_list.append(self.action_history_string)
 
-        if config.Debug.action_system:
+        if self.debug:
             print("\n" + self.action_history_string + "\n")
 
     ############################################################################################################
@@ -385,7 +387,7 @@ class ActionSystem:
                                                                                   energy_gain)
         self.action_history_list.append(self.action_history_string)
 
-        if config.Debug.action_system:
+        if self.debug:
             print("\n" + self.action_history_string + "\n")
 
     ############################################################################################################
@@ -436,5 +438,5 @@ class ActionSystem:
 
         self.action_history_list.append(self.action_history_string)
 
-        if config.Debug.action_system:
+        if self.debug:
             print("\n" + self.action_history_string + "\n")

@@ -212,3 +212,8 @@ class Animal:
         self.fetus = None
         self.metabolism = config.Animal.metabolism
 
+    ############################################################################################################
+    def save_game(self):
+        pass
+
+

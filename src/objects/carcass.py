@@ -14,7 +14,7 @@ class Carcass(world_object.WorldObject):
         self.init_appearance()
         self.id_number = the_world.entity_counter
         self.graphic_object = image
-        self.decay_rate = config.Carcass.decay_rate
+        self.decay_rate = config.WorldObject.decay_rate
 
         self.the_world.entity_counter += 1
 

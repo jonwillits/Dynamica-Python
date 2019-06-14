@@ -21,8 +21,8 @@ class World:
         self.world_size = 0
         self.land_size = 0
         self.water_size = 0
-        self.num_rows = config.World.num_rows + 2
-        self.num_columns = config.World.num_columns + 2
+        self.num_rows = config.World.world_rows + 2
+        self.num_columns = config.World.world_columns + 2
         self.map = {}
 
         self.animal_list = []
@@ -38,11 +38,14 @@ class World:
         self.animal_summary_dict = None
 
         self.appearance_dict = None
-        random_seed = config.GlobalOptions.random_seed
+        random_seed = config.World.random_seed
         if random_seed is None:
             self.random_seed = random.randint(0, 32768)
         else:
-            self.random_seed = config.GlobalOptions.random_seed
+            self.random_seed = config.World.random_seed
+
+        self.summary_freq = 1
+        self.debug = False
 
         random.seed(self.random_seed)
         np.random.seed(self.random_seed)
@@ -108,12 +111,12 @@ class World:
     ############################################################################################################
     def generate_animals(self):
 
-        for i in range(config.Lion.start_number):
+        for i in range(config.Animal.pop_size['Lion']):
             new_animal = lion.Lion(self, None, None)
             new_animal.init_animal()
             self.animal_list.append(new_animal)
 
-        for i in range(config.Zebra.start_number):
+        for i in range(config.Animal.pop_size['Zebra']):
             new_animal = zebra.Zebra(self, None, None)
             new_animal.init_animal()
             self.animal_list.append(new_animal)
@@ -357,12 +360,10 @@ class World:
         self.world_timers_array[11] += time.time() - start_time
 
         # output turn summary information
-        if config.GlobalOptions.summary_freq:
-            if self.current_turn % config.GlobalOptions.summary_freq == 0:
+        if self.summary_freq:
+            if self.current_turn % self.summary_freq == 0:
                 self.print_summary()
                 self.update_species_summaries()
-                if config.Animal.output_data:
-                    self.write_summary()
 
         self.current_turn += 1
 
@@ -375,7 +376,7 @@ class World:
         output_header += " {:<7s}  {:<7s}  {:<7s} | ".format("Health", "Energy", "Arousal")
         output_header += " {:<6s}  {:<6s} {:<6s} {:<6s} {:<6s} {:<6s}".format("Rest", "Attack", "Eat", "Proc", "Turn", "Move")
         output_header += "{:>9s}".format("Choice")
-        output_header += "| {:>6s} {:>6s} {:>6s} {:>6s} {:>9s}".format("SpCost", "DpCost", "ApCost", "PpCost", "DrCost")
+        output_header += "| {:>6s} {:>6s} {:>6s} {:>6s}".format("SpCost", "DpCost", "ApCost", "PpCost")
         if len(self.animal_list) > 1 or self.current_turn % 10 == 0:
             print(output_header)
 
@@ -430,10 +431,6 @@ class World:
                 output_string += '{:>6s} '.format('{:<3.2f}'.format(aap_error))
 
                 print(output_string)
-
-    ############################################################################################################
-    def write_summary(self):
-        pass
 
     ############################################################################################################
     def kill_animal(self, animal):

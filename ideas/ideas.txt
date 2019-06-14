@@ -1,0 +1,54 @@
+TO DO
+1) Save and load state
+2) Implement breathing and remove legal terrain type
+3) Much more thorough genetics of nervous system, including
+    - breaking network into subcomponents
+    - innate specification of all weights, but especially specific output action biases
+    - differential learning weights for different layers
+    - multiple (or no) hidden layers
+4) Analysis of learning:
+    - Some kind of evaluation of learning that can see if, after learning, does a relationship emerge between hunger and
+    eating, or between being in grass and eating, or an interaction of the three. More distantly, is there a higher
+    likelihood of moving to grass when hungry, or when grass is visible. Can this be traced to amount of reinforcement.
+    - Does procreation desire change over time, and can it be traced to amount of reinforcement.
+    - Can we evaluate whether Zebras like being around other Zebras, as a function of amount they are attacked or
+    amount that they procreate
+    - Are there any interesting sex differences
+
+
+IDEAS
+- the genotype as a distributed representation with hidden units. if you have genes consisting of "inputs", "outputs",
+    and "hiddens", and different genes can evolve to share some of the same hiddens, then you end up with a mechanism
+    by which different genes can start independent and become correlated.
+
+- if you have neural units that a specifically coding for grounded versions of abstract things (like number or
+    quantity of red pixels), hidden units connected to those neurons will end up encoding that property, but will then
+    be use-able by other neurons to code for that property in a more abstract way
+
+- make movement cost variable based on terrain type to simulate certain forms of locomotion being easy/hard for some
+    animals. swimming easy for sea lion hard for lion, walking on land the opposite
+- make resting cost variable based on terrain type, to simulate how staying on top of water might be more
+    costly for some animals. thus resting could even incur a negative energy cost for some animals on some terrain
+- these two combined should make being on land vs. being on water differentially pleasant once the animal
+    gets reinforcement for resting benefit/cost as a function of terrain
+- and of course animal can "drown" if it get's stuck in the water (ie if energy goes to zero while still in water)
+
+- humorous story idea: the garden of eden was the simple version of teh world where 'God' tested his program to get all
+    the parameters working right. once done, he kicked them out into the real world. And then humans had to invent a
+    version of the story that made it all about them and their actions being the cause for the expulsion. Because that's
+    how we roll.
+
+- get rid of the legal action array as a constraint on what action can be chosen, and only make it effect whether the
+    action is carried out. so you can still choose to eat in a desert, but with no concurrent energy gain. side effects
+    would need to be dealt with, but point is it should lead to faster learning about what actions are legal in a
+    given context.
+
+- possibly worth adding a "frustration" drive, that reinforces action desires that are fulfilled by a successfully
+    completed action, and that are punished for failing to take a desired action
+        - this could work with the removing constraint on "illegal" actions.
+
+- there is an inconsistency with health, energy, and arousal as the same kind of thing. Arousal is more of a trait that
+ought to be genetically modifiable. Health definitely not. Energy has properties of both, and should probably be split up
+into hunger and energy. Therefore energy and health are physical properties of the organism that flow from other things
+and arent phenotypic traits, whereas hunger and arousal (or at least the propensity to feel those things) are phenotypic
+traits that can be genetically modified.
